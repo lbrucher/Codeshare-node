@@ -1,0 +1,13 @@
+p Welcome!
+br
+br
+
+form(method='post', action='/candidate/register')
+	span Please enter your code:
+	span
+		input(type='text', name='code', value='#{code}')
+	span
+		input(type='submit', value='Register')
+	span(style='color:red; padding-left:8px;')
+		#{error}
+

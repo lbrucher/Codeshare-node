@@ -1,0 +1,21 @@
+!!!
+html
+	head
+		- if (typeof title !== 'undefined')
+			title= title
+		- else
+			title CodeShare
+		link(rel='stylesheet', href='/stylesheets/style.css')
+	body
+		#container
+			#header
+				ul
+					li.left
+						h1 CodeShare
+					li.right Session XX
+				- if (typeof currentUser !== 'undefined')
+					li.right
+						a#logout(href='/logout') Sign Out
+			#content
+				!= body
+

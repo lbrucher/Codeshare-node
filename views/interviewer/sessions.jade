@@ -1,0 +1,13 @@
+list sessions...
+
+
+table(border=1,cellspacing=0,cellpadding=4)
+	- for(var s in sessions)
+		tr
+			td= sessions[s].id
+			td= sessions[s].status
+			td
+				a(href='/interviewer/session/'+sessions[s].id) Resume
+				&nbsp;|
+				a(href='/interviewer/session/'+sessions[s].id+'/delete') Delete
+

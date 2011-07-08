@@ -1,0 +1,40 @@
+script(type='text/javascript', src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js')
+script(type='text/javascript', src='/javascripts/jquery.timers-1.0.0.js')
+script(type='text/javascript', src='/javascripts/cs-session.js')
+
+div(align="left")
+	table(border=0)
+		tr(valign="top")
+			td
+				#myScreenLabel
+				textarea#myText(rows="20", cols="80", onkeydown="cs.textarea_onkeydown(event)", onkeyup="cs.textarea_textChanged(event)")
+					#{myText}
+			td(style="padding-left:20px;")
+				#otherScreenLabel
+				textarea#otherText(rows="20", cols="80", readonly="readonly")
+					#{otherText}
+			- if (isDebug)
+				td(style="padding-left:8px; background-color:#DDD; border:1px solid #111; font-size:8pt;")
+					#log.log
+
+- if (isCandidate)
+	script
+		var baseUrl = '/candidate/session/#{session.id}';
+		var lastUpdateTime = #{session.interviewerTextLastUpdateTime.getTime()};
+		$('#myScreenLabel').html('Your screen:');
+		$('#otherScreenLabel').html('Interviewer screen:');
+- else
+	script
+		var baseUrl = '/interviewer/session/#{session.id}';
+		var lastUpdateTime = #{session.candidateTextLastUpdateTime.getTime()};
+		$('#myScreenLabel').html('Interviewer:');
+		$('#otherScreenLabel').html('Candidate:');
+
+script
+	var cs = new Codeshare(#{session.id}, lastUpdateTime, baseUrl);
+
+	if (#{isDebug})
+		cs.enableLogging();
+
+	cs.start();
+
