@@ -1,21 +1,22 @@
-script(type='text/javascript', src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js')
+//script(type='text/javascript', src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js')
+script(type='text/javascript', src='/javascripts/jquery.min.js')
 script(type='text/javascript', src='/javascripts/jquery.timers-1.0.0.js')
 script(type='text/javascript', src='/javascripts/cs-session.js')
 
-div(align="left")
-	table(border=0)
-		tr(valign="top")
-			td
-				#myScreenLabel
-				textarea#myText(rows="20", cols="80", onkeydown="cs.textarea_onkeydown(event)", onkeyup="cs.textarea_textChanged(event)")
-					#{myText}
-			td(style="padding-left:20px;")
-				#otherScreenLabel
-				textarea#otherText(rows="20", cols="80", readonly="readonly")
-					#{otherText}
-			- if (isDebug)
-				td(style="padding-left:8px; background-color:#DDD; border:1px solid #111; font-size:8pt;")
-					#log.log
+div.session
+	div.left
+		#myScreenLabel
+		#myScreenContent
+			textarea#myText(rows=20, onkeydown="cs.textarea_onkeydown(event)", onkeyup="cs.textarea_textChanged(event)")
+				#{myText}
+	div.right
+		#otherScreenLabel
+		#otherScreenContent
+			textarea#otherText(rows=20, readonly="readonly")
+				#{otherText}
+	- if (isDebug)
+		#log.log
+
 
 - if (isCandidate)
 	script

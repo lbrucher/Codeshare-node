@@ -59,6 +59,62 @@ a {
 }
 
 #content {
-	padding:8px;
+	padding:0px;
 }
+
+
+
+#content .session {
+	width:100%;
+	height:507px;
+	border-bottom:1px solid #999;
+	padding-bottom:4px;
+}
+
+#content .session .left {
+	position:absolute;
+	width:40%;
+	border-right:1px solid #999;
+}
+
+#content .session .right {
+	position:absolute;
+	left:41%;
+	width:40%;
+	border-left:1px solid #999;
+}
+
+#content .session .left #myScreenLabel,
+#content .session .right #otherScreenLabel {
+	background-color:#f0f0f0;
+	padding:4px 0 4px 8px;
+	height:20px;
+}
+
+#content .session .left #myScreenContent,
+#content .session .right #otherScreenContent {
+	padding:8px 0 8px 8px;
+	height:468px;
+}
+
+#content .session .left #myText,
+#content .session .right #otherText {
+	width:100%;
+	border:0;
+	background-color:#999;
+}
+
+
+#content .session .log {
+	position:absolute;
+	left:82%;
+	width:17%;
+	background-color:#DDD;
+	border:1px solid #111;
+	font-size:8pt;
+	margin-top:4px;
+}
+
+
+
 

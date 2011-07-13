@@ -3,8 +3,11 @@
  * Module dependencies.
  */
 
-var isDebug = true;
-var express = require('express');
+var isDebug = false;
+
+var express = require('express'),
+		users = require('./users.mem'),
+		sessions = require('./sessions.mem');
 
 var app = module.exports = express.createServer();
 
@@ -13,15 +16,21 @@ var app = module.exports = express.createServer();
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
-  app.use(express.logger());
+//  app.use(express.logger());
   app.use(express.bodyParser());
+	app.use(express.cookieParser());
+	app.use(express.session({ secret: "4roo0cff 3elk" }));
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
+	serverPort = process.env.VMC_APP_PORT || 8000;
+	users.init();
+	sessions.init();
 });
 
 app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+	isDebug = true;
 });
 
 app.configure('production', function(){
@@ -29,24 +38,7 @@ app.configure('production', function(){
 });
 
 
-// DEBUG
-
-var sessions = [
-	{id:1,open:true,candidateName:'joe', interviewerText:'Some interviewer text', candidateText:'some candidate text...', interviewerTextLastUpdateTime:new Date(), candidateTextLastUpdateTime:new Date()},
-	{id:2,open:false,candidateName:'albert', interviewerText:'', candidateText:'', interviewerTextLastUpdateTime:new Date(), candidateTextLastUpdateTime:new Date()},
-];
-
-
 // HELPERS
-
-function getSession(id)
-{
-	var index = id-1;
-	if (index >= 0 && index < sessions.length)
-		return sessions[index];
-	return null;
-}
-
 
 function getRefreshedText(aSession, lastUpdateTime, who)
 {
@@ -67,6 +59,22 @@ function getRefreshedText(aSession, lastUpdateTime, who)
 }
 
 
+function secured(req, res, next) {
+	if (req.session.username)
+	{
+		var user = users.get(req.session.username);
+		if (user != null)
+		{
+			req.user = user;
+			next();
+			return;
+		}
+	}
+
+	res.redirect('/interviewer/login');
+}
+
+
 // ===============================================
 // ROUTING
 // ===============================================
@@ -75,35 +83,55 @@ app.get('/', function(req, res){
   res.redirect('/candidate');
 });
 
-
 // ---------------------------
 // INTERVIEWER
 // ---------------------------
 
-app.get('/interviewer', function(req,res){
-	res.render('interviewer/sessions.jade', {title:'Interviewer', sessions:sessions});
+app.get('/interviewer', secured, function(req,res){
+	res.render('interviewer/sessions.jade', {currentUser:req.user, sessions:sessions.all()});
 });
 
-app.get('/interviewer/session/:id', function(req,res){
-	var s = getSession(req.params.id);
+app.get('/interviewer/login', function(req,res){
+	res.render('interviewer/login.jade');
+});
+
+app.post('/interviewer/login', function(req,res){
+	var user = users.validate(req.body.username, req.body.password);
+	if (user == null)
+		res.render('interviewer/login.jade');
+	else
+	{
+		console.log("login OK for ["+user.username+"]");
+		req.session.username = user.username;
+		res.redirect('/interviewer');
+	}
+});
+
+app.get('/interviewer/logout', function(req,res){
+	req.session.destroy();
+  res.redirect('/interviewer');
+});
+
+app.get('/interviewer/session/:id', secured, function(req,res){
+	var s = sessions.get(req.params.id);
 	if (s == null || !s.open)
 		res.redirect('/interviewer');
 	else
-		res.render('interviewer/session.jade', {title:'Interviewer', session:s, isDebug:isDebug});
+		res.render('interviewer/session.jade', {currentUser:req.user, session:s, isDebug:isDebug});
 });
 
 
-app.get('/interviewer/session/:id/closed', function(req,res){
-	res.render('/interviewer');
+app.get('/interviewer/session/:id/closed', secured, function(req,res){
+	res.redirect('/interviewer');
 });
 
 
-app.get('/interviewer/session/:id/refreshOtherText/:lastOtherUpdateTime', function(req,res){
-	res.send( getRefreshedText(getSession(req.params.id), req.params.lastOtherUpdateTime, "candidate") );
+app.get('/interviewer/session/:id/refreshOtherText/:lastOtherUpdateTime', secured, function(req,res){
+	res.send( getRefreshedText(sessions.get(req.params.id), req.params.lastOtherUpdateTime, "candidate") );
 });
 
-app.post('/interviewer/session/:id/updateMyText', function(req,res){
-	var s = getSession(req.params.id);
+app.post('/interviewer/session/:id/updateMyText', secured, function(req,res){
+	var s = sessions.get(req.params.id);
 	if (s != null && s.open)
 	{
 		s.interviewerText = req.body.myText;
@@ -124,7 +152,7 @@ app.get('/candidate', function(req,res){
 
 app.post('/candidate/register', function(req,res){
 	var code = req.body.code;
-	var s = getSession(code);
+	var s = sessions.get(code);
 	if (s == null)
 		res.render('candidate/register.jade', {title:'Candidate', code:code, error:'Invalid code!'});
 	else if (!s.open)	
@@ -134,7 +162,7 @@ app.post('/candidate/register', function(req,res){
 });
 
 app.get('/candidate/session/:id', function(req,res){
-	var s = getSession(req.params.id);
+	var s = sessions.get(req.params.id);
 	if (s == null || !s.open)
 		res.redirect('/candidate');
 	else
@@ -148,11 +176,11 @@ app.get('/candidate/session/:id/closed', function(req,res){
 
 
 app.get('/candidate/session/:id/refreshOtherText/:lastOtherUpdateTime', function(req,res){
-	res.send( getRefreshedText(getSession(req.params.id), req.params.lastOtherUpdateTime, "interviewer") );
+	res.send( getRefreshedText(sessions.get(req.params.id), req.params.lastOtherUpdateTime, "interviewer") );
 });
 
 app.post('/candidate/session/:id/updateMyText', function(req,res){
-	var s = getSession(req.params.id);
+	var s = sessions.get(req.params.id);
 	if (s != null && s.open)
 	{
 		s.candidateText = req.body.myText;
@@ -168,6 +196,6 @@ app.post('/candidate/session/:id/updateMyText', function(req,res){
 // START SERVER
 // ===============================================
 
-app.listen(3000);
+app.listen(serverPort, null);
 console.log("Server listening on port %d in %s mode", app.address().port, app.settings.env);
 
