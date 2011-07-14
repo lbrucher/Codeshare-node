@@ -2,11 +2,18 @@ var _users = [];
 
 module.exports = {
 
-	init: function() {
-		_users = [
-			{username:'joe', password:'joe', firstName:'Joe', lastName:'Smith'},
-			{username:'admin', password:'admin', firstName:'Admin', lastName:'User'},
-		];
+	init: function(app) {
+		if (app.settings.env == 'development') {
+			_users = [
+				{username:'joe', password:'joe', firstName:'Joe', lastName:'Smith'},
+				{username:'admin', password:'admin', firstName:'Admin', lastName:'User'},
+			];
+		}
+		else if (app.settings.env == 'production') {
+			_users = [
+				{username:'admin', password:'admin', firstName:'Admin', lastName:'User'},
+			];
+		}
 	},
 
 	get: function(username) {

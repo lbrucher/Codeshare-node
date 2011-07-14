@@ -1,13 +1,31 @@
-list sessions...
+#sessions
 
+	#open
+		span Open sessions (
+		a#create(href='/interviewer/createNew') Create New
+		span )
+	table(border=0,cellspacing=0,cellpadding=4)
+		- for(var s in openSessions)
+			tr
+				td [#{openSessions[s].id}]
+				td #{openSessions[s].createdOn.getYear()+1900}/#{openSessions[s].createdOn.getMonth()+1}/#{openSessions[s].createdOn.getDate()} #{openSessions[s].createdOn.toLocaleTimeString()}
+				td= openSessions[s].status
+				td
+					a(href='/interviewer/session/'+openSessions[s].id) Resume
+					&nbsp;|
+					a(href='/interviewer/session/'+openSessions[s].id+'/close') Close
+					&nbsp;|
+					a(href='/interviewer/session/'+openSessions[s].id+'/delete') Delete
 
-table(border=1,cellspacing=0,cellpadding=4)
-	- for(var s in sessions)
-		tr
-			td= sessions[s].id
-			td= sessions[s].status
-			td
-				a(href='/interviewer/session/'+sessions[s].id) Resume
-				&nbsp;|
-				a(href='/interviewer/session/'+sessions[s].id+'/delete') Delete
+	#closed Closed sessions 
+	table(border=0,cellspacing=0,cellpadding=4)
+		- for(var s in closedSessions)
+			tr
+				td [#{closedSessions[s].id}]
+				td #{closedSessions[s].createdOn.getYear()+1900}/#{closedSessions[s].createdOn.getMonth()+1}/#{closedSessions[s].createdOn.getDate()} #{closedSessions[s].createdOn.toLocaleTimeString()}
+				td= closedSessions[s].status
+				td
+					a(href='/interviewer/session/'+closedSessions[s].id+'/reopen') Reopen
+					&nbsp;|
+					a(href='/interviewer/session/'+closedSessions[s].id+'/delete') Delete
 

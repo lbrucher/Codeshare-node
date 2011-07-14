@@ -1,9 +1,8 @@
 body {
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
-
 h1,
 h2,
 h3,
@@ -18,103 +17,162 @@ form {
   margin: 0;
   padding: 0;
 }
-
 a {
-  color: #00B7FF;
+  color: #00b7ff;
 }
-
 #header {
   width: 100%;
-  height: 35px;
+  height: 30px;
   list-style-type: none;
   margin: 0;
   padding: 0;
-	color: #fff;
+  color: #fff;
   background-color: #8897ba;
   background: -webkit-gradient(linear, left top, left bottom, from(#b2bed7), to(#8897ba));
-  background: -moz-linear-gradient(top,  #b2bed7,  #8897ba);
+  background: -moz-linear-gradient(top, #b2bed7, #8897ba);
   border-bottom: 1px solid #999;
 }
-
 #header ul {
   list-style-type: none;
-  padding: 8px;
-}
-#header h1 {
-  font-size: 16px;
-  font-style:italic;
+  padding: 6px 10px 0 10px;
+  font-size: 90%;
 }
 #header ul li.left {
   float: left;
 }
+#header ul li.left h1 {
+  margin-top: -2px;
+  font-size: 12pt;
+  font-style: italic;
+}
+#header ul li.left h1 a,
+#header ul li.left h1 a:hover {
+  text-decoration: none;
+  color: #fff;
+}
 #header ul li.right {
   float: right;
 }
-#header a {
-  font-size: 13px;
-  font-weight: bold;
+#header ul li.right .divider {
+  display: inline;
+  padding: 0 8px 0 8px;
+}
+#header ul li.right a {
   text-decoration: none;
-  color: #333;
-  text-shadow: #f0f0f0 0 1px 0;
+  color: #fff;
 }
-
+#header ul li.right a:hover {
+  text-decoration: underline;
+}
 #content {
-	padding:0px;
+  padding: 8px;
 }
-
-
-
+#content #sessions {
+  margin-top: 12px;
+  margin-left: 4px;
+}
+#content #sessions a#create {
+  text-decoration: none;
+  background-color: #d0d0d0;
+  border: 1px solid #a0a0a0;
+  color: #fff;
+  padding: 1px 6px;
+  font-size: 75%;
+}
+#content #sessions #open,
+#content #sessions #closed {
+  font-weight: bold;
+  margin-top: 20px;
+}
 #content .session {
-	width:100%;
-	height:507px;
-	border-bottom:1px solid #999;
-	padding-bottom:4px;
+  width: 100%;
+  position: absolute;
+  top: 46px;
+  left: 0;
 }
-
 #content .session .left {
-	position:absolute;
-	width:40%;
-	border-right:1px solid #999;
+  width: 48%;
+  margin-left: 8px;
 }
-
 #content .session .right {
-	position:absolute;
-	left:41%;
-	width:40%;
-	border-left:1px solid #999;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 48%;
+  float: right;
 }
-
 #content .session .left #myScreenLabel,
 #content .session .right #otherScreenLabel {
-	background-color:#f0f0f0;
-	padding:4px 0 4px 8px;
-	height:20px;
+  padding-left: 2px;
 }
-
 #content .session .left #myScreenContent,
 #content .session .right #otherScreenContent {
-	padding:8px 0 8px 8px;
-	height:468px;
+  padding: 0;
 }
-
 #content .session .left #myText,
 #content .session .right #otherText {
-	width:100%;
-	border:0;
-	background-color:#999;
+  width: 99%;
+  padding: 4px;
+  background-color: #f9f9f9;
+  color: #000;
 }
-
-
+#content .session .left #myText {
+  border: 2px solid #f99;
+}
+#content .session .right #otherText {
+  border: 1px solid #999;
+}
 #content .session .log {
-	position:absolute;
-	left:82%;
-	width:17%;
-	background-color:#DDD;
-	border:1px solid #111;
-	font-size:8pt;
-	margin-top:4px;
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 200px;
+  background-color: #dfdfdf;
+  border: 1px solid #111;
+  font-size: 8pt;
+  padding: 2px;
 }
-
-
-
-
+#login {
+  margin-top: 20px;
+}
+#login #wrapper,
+#login #form {
+  width: 318px;
+}
+#login #wrapper {
+  position: absolute;
+  right: 50%;
+}
+#login #form {
+  position: relative;
+  left: 50%;
+  background-color: #f0f0f0;
+  border: 1px solid #d0d0d0;
+  padding: 16px 8px;
+  text-align: center;
+}
+#login #form #fields {
+  text-align: left;
+  width: 316px;
+}
+#login #form #password {
+  margin-top: 4px;
+}
+#login #form #username div,
+#login #form #password div {
+  width: 100px;
+  text-align: right;
+  float: left;
+}
+#login #form #username input,
+#login #form #password input {
+  width: 200px;
+  margin-left: 8px;
+}
+#login #form input#submit {
+  margin-top: 20px;
+}
+#login #form #message {
+  color: #f00;
+  margin-top: 20px;
+}

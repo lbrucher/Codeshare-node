@@ -2,17 +2,22 @@
 html
 	head
 		title CodeShare
-		link(rel='stylesheet', href='/stylesheets/style2.css')
+		link(rel='stylesheet', href='/stylesheets/style.css')
 	body
 		#container
 			#header
 				ul
 					li.left
-						h1 CodeShare
-					- if (typeof currentUser !== 'undefined')
+						h1
+							- if ( typeof(interviewer) != 'undefined' && interviewer )
+								a(href='/interviewer') CodeShare - Interviewer
+							- else
+								a(href='/candidate') CodeShare
+					- if (typeof currentUser != 'undefined')
 						li.right.signout
 							.divider |
 							a#logout(href='/interviewer/logout') Sign Out
+							span(style='padding-left:6px;') (#{currentUser.username})
 					- if (typeof session != 'undefined')
 						li.right Session #{session.id}
 			#content

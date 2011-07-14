@@ -6,6 +6,7 @@
 var isDebug = false;
 
 var express = require('express'),
+		stylus = require('stylus'),
 		users = require('./users.mem'),
 		sessions = require('./sessions.mem');
 
@@ -16,7 +17,8 @@ var app = module.exports = express.createServer();
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
-//  app.use(express.logger());
+	//app.use(express.logger());
+	app.use(stylus.middleware({ src: __dirname + '/public' }));
   app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	app.use(express.session({ secret: "4roo0cff 3elk" }));
@@ -24,8 +26,8 @@ app.configure(function(){
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 	serverPort = process.env.VMC_APP_PORT || 8000;
-	users.init();
-	sessions.init();
+	users.init(app);
+	sessions.init(app);
 });
 
 app.configure('development', function(){
@@ -35,6 +37,7 @@ app.configure('development', function(){
 
 app.configure('production', function(){
   app.use(express.errorHandler()); 
+	isDebug = false;
 });
 
 
@@ -88,17 +91,17 @@ app.get('/', function(req, res){
 // ---------------------------
 
 app.get('/interviewer', secured, function(req,res){
-	res.render('interviewer/sessions.jade', {currentUser:req.user, sessions:sessions.all()});
+	res.render('interviewer/sessions.jade', {interviewer:true, currentUser:req.user, openSessions:sessions.allOpen(req.user.username), closedSessions:sessions.allClosed(req.user.username)});
 });
 
 app.get('/interviewer/login', function(req,res){
-	res.render('interviewer/login.jade');
+	res.render('interviewer/login.jade', {interviewer:true});
 });
 
 app.post('/interviewer/login', function(req,res){
 	var user = users.validate(req.body.username, req.body.password);
 	if (user == null)
-		res.render('interviewer/login.jade');
+		res.render('interviewer/login.jade', {interviewer:true});
 	else
 	{
 		console.log("login OK for ["+user.username+"]");
@@ -112,17 +115,46 @@ app.get('/interviewer/logout', function(req,res){
   res.redirect('/interviewer');
 });
 
+app.get('/interviewer/createNew', secured, function(req,res){
+	sessions.createNew(req.user.username);
+  res.redirect('/interviewer');
+});
+
+app.get('/interviewer/session/:id/close', secured, function(req,res){
+	var s = sessions.get(req.params.id);
+	if (s != null && s.open)
+	{
+		s.open = false;
+		sessions.update(s);
+	}
+	res.redirect('/interviewer');
+});
+
+app.get('/interviewer/session/:id/reopen', secured, function(req,res){
+	var s = sessions.get(req.params.id);
+	if (s != null && !s.open)
+	{
+		s.open = true;
+		sessions.update(s);
+	}
+	res.redirect('/interviewer');
+});
+
+app.get('/interviewer/session/:id/delete', secured, function(req,res){
+	sessions.remove(req.params.id);
+	res.redirect('/interviewer');
+});
+
+app.get('/interviewer/session/:id/closed', secured, function(req,res){
+	res.redirect('/interviewer');
+});
+
 app.get('/interviewer/session/:id', secured, function(req,res){
 	var s = sessions.get(req.params.id);
 	if (s == null || !s.open)
 		res.redirect('/interviewer');
 	else
-		res.render('interviewer/session.jade', {currentUser:req.user, session:s, isDebug:isDebug});
-});
-
-
-app.get('/interviewer/session/:id/closed', secured, function(req,res){
-	res.redirect('/interviewer');
+		res.render('interviewer/session.jade', {interviewer:true, currentUser:req.user, session:s, isDebug:isDebug});
 });
 
 
@@ -136,6 +168,7 @@ app.post('/interviewer/session/:id/updateMyText', secured, function(req,res){
 	{
 		s.interviewerText = req.body.myText;
 		s.interviewerTextLastUpdateTime = new Date();
+		sessions.update(s);
 	}
 
 	res.send( getRefreshedText(s, req.body.lastOtherUpdateTime, "candidate") );
@@ -185,6 +218,7 @@ app.post('/candidate/session/:id/updateMyText', function(req,res){
 	{
 		s.candidateText = req.body.myText;
 		s.candidateTextLastUpdateTime = new Date();
+		sessions.update(s);
 	}
 
 	res.send( getRefreshedText(s, req.body.lastOtherUpdateTime, "interviewer") );
