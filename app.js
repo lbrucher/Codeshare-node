@@ -13,7 +13,7 @@ var express = require('express'),
 
 var app = module.exports = express.createServer();
 
-var host = process.env.VCAP_APP_HOST || 'localhost';
+//var host = process.env.VCAP_APP_HOST || 'localhost';
 var port = Number(process.env.PORT || process.env.VCAP_APP_PORT || 8000);
 
 
@@ -234,6 +234,6 @@ app.post('/candidate/session/:id/updateMyText', function(req,res){
 // START SERVER
 // ===============================================
 
-app.listen(port, host);
+app.listen(port);
 console.log("Server listening on port %d in %s mode", app.address().port, app.settings.env);
 
