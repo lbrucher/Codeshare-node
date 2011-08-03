@@ -5,12 +5,18 @@
 
 var isDebug = false;
 
+require('joose');
+require('joosex-namespace-depended');
+require('hash');
+
 var express = require('express'),
 		stylus = require('stylus'),
 //		cf = require("cloudfoundry"),
 		users = require('./users.mem'),
 		sessions = require('./sessions.mem');
 
+//var hh = require('hash');
+    
 var app = module.exports = express.createServer();
 
 //var host = process.env.VCAP_APP_HOST || 'localhost';
@@ -81,6 +87,16 @@ function secured(req, res, next) {
 	res.redirect('/interviewer/login');
 }
 
+function securedAdmin(req, res, next) {
+	if (req.session.username == 'admin')
+	{
+		next();
+		return;
+	}
+	
+	res.redirect('/interviewer');
+}
+
 
 // ===============================================
 // ROUTING
@@ -89,6 +105,34 @@ function secured(req, res, next) {
 app.get('/', function(req, res){
   res.redirect('/candidate');
 });
+
+// ---------------------------
+// USER MANAGEMENT
+// ---------------------------
+app.get('/users', secured, securedAdmin, function(req,res){
+	res.render('user/list.jade', {currentUser:req.user, users:users.list()});
+});
+
+app.get('/users/new', secured, securedAdmin, function(req,res){
+	res.render('user/new.jade', {currentUser:req.user, username:'',firstName:'',lastName:'',error:null});
+});
+
+app.post('/users/new', secured, securedAdmin, function(req,res){
+	users.createNew(req.body.username,req.body.password,req.body.firstName,req.body.lastName, function(err) {
+		if (err) {
+			res.render('user/new.jade', {currentUser:req.user, username:req.body.username,firstName:req.body.firstName,lastName:req.body.lastName,error:err});
+		} else {
+			res.redirect('/users');
+		}
+	});
+});
+
+app.get('/users/:un/delete', secured, securedAdmin, function(req,res){
+	users.remove(req.params.un, function(err) {
+		res.redirect('/users');
+	});
+});
+
 
 // ---------------------------
 // INTERVIEWER

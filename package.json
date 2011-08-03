@@ -6,5 +6,8 @@
       "express": "2.4.0"
     , "jade": ">= 0.0.1"
     , "stylus": "0.13.6"
+    , "joose": "3.18.0"
+    , "joosex-namespace-depended": "0.17.0"
+    , "hash": "0.06.0"
   }
 }

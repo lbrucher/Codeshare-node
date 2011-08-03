@@ -1,0 +1,11 @@
+- unit tests
+- db for users
+- HTTPs for interviewer
+- db for sessions
+- session id as combination of digits+alpha
+- use of socket.io
+- users in groups
+- store code snippets to use during interview
+- auto close sessions
+
+

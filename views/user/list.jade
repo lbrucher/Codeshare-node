@@ -1,0 +1,12 @@
+
+a(href='/users/new') Create New
+br
+br
+table(border=0,cellspacing=0,cellpadding=4)
+	- for(var u in users)
+		tr
+			td #{users[u].username}
+			td
+				- if (users[u].username != 'admin')
+					a(href='/users/'+users[u].username+'/delete') Delete
+

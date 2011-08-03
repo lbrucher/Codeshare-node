@@ -1,0 +1,28 @@
+p
+	u New User
+br
+
+form(method='post', action='/users/new')
+	table(border=0,cellspacing=0,cellpadding=4)
+		tr
+			td Username:
+			td
+				input(type='text',name='username',value='#{username}')
+		tr
+			td Password:
+			td
+				input(type='password',name='password',value='')
+		tr
+			td First name:
+			td
+				input(type='text',name='firstName',value='#{firstName}')
+		tr
+			td Last name:
+			td
+				input(type='text',name='lastName',value='#{lastName}')
+
+	input(type='submit',value='Create New User')
+
+	span(style='color:red; padding-left:8px;')
+		#{error}
+
