@@ -7,7 +7,7 @@ var isDebug = false;
 
 var express = require('express'),
 		stylus = require('stylus'),
-		cf = require("cloudfoundry"),
+//		cf = require("cloudfoundry"),
 		users = require('./users.mem'),
 		sessions = require('./sessions.mem');
 
