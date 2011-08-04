@@ -7,19 +7,19 @@ form(method='post', action='/users/new')
 		tr
 			td Username:
 			td
-				input(type='text',name='username',value='#{username}')
+				input(type='text',name='user[username]',value=user.username)
 		tr
 			td Password:
 			td
-				input(type='password',name='password',value='')
+				input(type='password',name='user[password]',value='')
 		tr
 			td First name:
 			td
-				input(type='text',name='firstName',value='#{firstName}')
+				input(type='text',name='user[first_name]',value=user.first_name)
 		tr
 			td Last name:
 			td
-				input(type='text',name='lastName',value='#{lastName}')
+				input(type='text',name='user[last_name]',value=user.last_name)
 
 	input(type='submit',value='Create New User')
 

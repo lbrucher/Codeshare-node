@@ -9,15 +9,22 @@ require('joose');
 require('joosex-namespace-depended');
 require('hash');
 
+// Modules
 var express = require('express'),
 		stylus = require('stylus'),
-//		cf = require("cloudfoundry"),
-		users = require('./users.mem'),
+		mongoose = require('mongoose'),
+		models = require('./models'),
 		sessions = require('./sessions.mem');
+		//cf = require("cloudfoundry"),
+//		users = require('./users.mem'),
 
-//var hh = require('hash');
-    
+// Globals
+var db;
+var User, Session;
+
+// Application/Server    
 var app = module.exports = express.createServer();
+
 
 //var host = process.env.VCAP_APP_HOST || 'localhost';
 var port = Number(process.env.PORT || process.env.VCAP_APP_PORT || 8000);
@@ -36,19 +43,45 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
-	users.init(app);
-	sessions.init(app);
+//	users.init(app);
+//	sessions.init(app);
 });
 
 app.configure('development', function(){
+  app.set('db-uri', 'mongodb://localhost/codeshare');
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 	isDebug = true;
 });
 
 app.configure('production', function(){
+  app.set('db-uri', 'mongodb://localhost/codeshare');
   app.use(express.errorHandler()); 
 	isDebug = false;
 });
+
+
+
+// MONGOOSE
+models.defineModels(mongoose, function() {
+  app.User = User = mongoose.model('UserSchema');
+  db = mongoose.connect(app.set('db-uri'));
+
+
+	User.findOne( {username:'admin'}, function(err,user) {
+		if (!user) {
+			// Create the admin account
+			user = new User({username:'admin', password:'admin', first_name:'super', last_name:'user'});
+			user.save(function(err) {
+				if (err)
+					console.log('FAILED creating the admin account: '+err);
+				else
+					console.log('Created the admin account');
+			});
+		}
+	});
+
+})
+
 
 
 // HELPERS
@@ -75,16 +108,18 @@ function getRefreshedText(aSession, lastUpdateTime, who)
 function secured(req, res, next) {
 	if (req.session.username)
 	{
-		var user = users.get(req.session.username);
-		if (user != null)
-		{
-			req.user = user;
-			next();
-			return;
-		}
+		User.findOne({username:req.session.username}, function(err,user) {
+			if (user) {
+				req.user = user;
+				next();
+			}
+			else {
+				res.redirect('/interviewer/login');
+			}
+		});
 	}
-
-	res.redirect('/interviewer/login');
+	else
+		res.redirect('/interviewer/login');
 }
 
 function securedAdmin(req, res, next) {
@@ -110,27 +145,32 @@ app.get('/', function(req, res){
 // USER MANAGEMENT
 // ---------------------------
 app.get('/users', secured, securedAdmin, function(req,res){
-	res.render('user/list.jade', {currentUser:req.user, users:users.list()});
+	User.find({}, function(err, users) {
+		res.render('user/list.jade', {currentUser:req.user, users:users});
+	});
 });
 
 app.get('/users/new', secured, securedAdmin, function(req,res){
-	res.render('user/new.jade', {currentUser:req.user, username:'',firstName:'',lastName:'',error:null});
+	res.render('user/new.jade', {currentUser:req.user, user:new User(), error:null});
 });
 
 app.post('/users/new', secured, securedAdmin, function(req,res){
-	users.createNew(req.body.username,req.body.password,req.body.firstName,req.body.lastName, function(err) {
-		if (err) {
-			res.render('user/new.jade', {currentUser:req.user, username:req.body.username,firstName:req.body.firstName,lastName:req.body.lastName,error:err});
-		} else {
+	var user = new User(req.body.user);
+	user.save(function(err) {
+		if (err)
+			res.render('user/new.jade', {currentUser:req.user, user:user, error:err});
+		else
 			res.redirect('/users');
-		}
 	});
 });
 
 app.get('/users/:un/delete', secured, securedAdmin, function(req,res){
+/*
 	users.remove(req.params.un, function(err) {
 		res.redirect('/users');
 	});
+*/
+		res.redirect('/users');
 });
 
 
@@ -147,15 +187,16 @@ app.get('/interviewer/login', function(req,res){
 });
 
 app.post('/interviewer/login', function(req,res){
-	var user = users.validate(req.body.username, req.body.password);
-	if (user == null)
-		res.render('interviewer/login.jade', {interviewer:true});
-	else
-	{
-		console.log("login OK for ["+user.username+"]");
-		req.session.username = user.username;
-		res.redirect('/interviewer');
-	}
+	User.findOne({username:req.body.username}, function(err,user) {
+		if (user && user.authenticate(req.body.password)) {
+			console.log("login OK for ["+user.username+"]");
+			req.session.username = user.username;
+			res.redirect('/interviewer');
+		}
+		else {
+			res.render('interviewer/login.jade', {interviewer:true});
+		}
+	});
 });
 
 app.get('/interviewer/logout', function(req,res){
