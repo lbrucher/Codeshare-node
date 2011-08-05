@@ -1,8 +1,4 @@
 // Modules
-require('joose');
-require('joosex-namespace-depended');
-require('hash');
-
 var express = require('express'),
 		stylus = require('stylus'),
 		mongoose = require('mongoose'),

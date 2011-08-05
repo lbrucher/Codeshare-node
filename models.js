@@ -1,3 +1,4 @@
+var crypto = require('crypto');
 
 
 function defineModels(mongoose, callback) {
@@ -9,22 +10,28 @@ function defineModels(mongoose, callback) {
     'username': { type: String, required: true, index: { unique: true } },
     'password_hashed': String,
     'first_name': String,
-    'last_name': String
+    'last_name': String,
+    'salt': String
   });
 
   UserSchema.virtual('password')
 		.set(function(password) {
 			this._password = password;
+      this.salt = this.makeSalt();
 			this.password_hashed = this.encryptPassword(password);
     })
     .get(function() { return this._password; });
+
+  UserSchema.method('makeSalt', function() {
+    return Math.round((new Date().valueOf() * Math.random())) + '';
+  });
 
 	UserSchema.method('authenticate', function(pwdClear) {
 	    return this.encryptPassword(pwdClear) === this.password_hashed;
 	});
 	
   UserSchema.method('encryptPassword', function(pwdClear) {
-    return Hash.sha1(pwdClear);
+    return crypto.createHmac('sha1', this.salt).update(pwdClear).digest('hex');
   });
 
 
