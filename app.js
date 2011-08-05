@@ -1,26 +1,20 @@
-
-/**
- * Module dependencies.
- */
-
-var isDebug = false;
-
+// Modules
 require('joose');
 require('joosex-namespace-depended');
 require('hash');
 
-// Modules
 var express = require('express'),
 		stylus = require('stylus'),
 		mongoose = require('mongoose'),
 		models = require('./models'),
 		sessions = require('./sessions.mem');
-		//cf = require("cloudfoundry"),
-//		users = require('./users.mem'),
+
 
 // Globals
 var db;
 var User, Session;
+var isDebug = false;
+
 
 // Application/Server    
 var app = module.exports = express.createServer();
@@ -31,7 +25,6 @@ var port = Number(process.env.PORT || process.env.VCAP_APP_PORT || 8000);
 
 
 // Configuration
-
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -43,8 +36,8 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
-//	users.init(app);
-//	sessions.init(app);
+
+	sessions.init(app);
 });
 
 app.configure('development', function(){
@@ -54,7 +47,7 @@ app.configure('development', function(){
 });
 
 app.configure('production', function(){
-  app.set('db-uri', 'mongodb://localhost/codeshare');
+  app.set('db-uri', process.env.MONGOHQ_URL);
   app.use(express.errorHandler()); 
 	isDebug = false;
 });
@@ -67,6 +60,7 @@ models.defineModels(mongoose, function() {
   db = mongoose.connect(app.set('db-uri'));
 
 
+	// See if there is an admin account. If not, create a standard one.
 	User.findOne( {username:'admin'}, function(err,user) {
 		if (!user) {
 			// Create the admin account
