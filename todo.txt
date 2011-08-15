@@ -1,8 +1,9 @@
 - unit tests
-- db for users
 - HTTPs for interviewer
+- change password
 - db for sessions
 - session id as combination of digits+alpha
+- ability for users to create accounts
 - use of socket.io
 - users in groups
 - store code snippets to use during interview

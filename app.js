@@ -1,6 +1,7 @@
 // Modules
 var express = require('express'),
 		stylus = require('stylus'),
+		fs = require('fs'),
 		mongoose = require('mongoose'),
 		models = require('./models'),
 		sessions = require('./sessions.mem');
@@ -10,11 +11,21 @@ var express = require('express'),
 var db;
 var User, Session;
 var isDebug = false;
+var isHttps = false;
 
 
 // Application/Server    
-var app = module.exports = express.createServer();
-
+var app;
+if (isHttps) {
+	var serverOptions = {
+		key: fs.readFileSync(__dirname+'/privatekey.pem'),
+		cert: fs.readFileSync(__dirname+'/certificate.pem')
+	};
+	app = express.createServer(serverOptions);
+} else {
+	app = express.createServer();
+}
+module.exports = app;
 
 //var host = process.env.VCAP_APP_HOST || 'localhost';
 var port = Number(process.env.PORT || process.env.VCAP_APP_PORT || 8000);
@@ -128,7 +139,8 @@ function securedAdmin(req, res, next) {
 // ===============================================
 
 app.get('/', function(req, res){
-  res.redirect('/candidate');
+//  res.redirect('/candidate');
+	res.render('index.jade');
 });
 
 // ---------------------------
