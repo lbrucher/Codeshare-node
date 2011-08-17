@@ -36,8 +36,8 @@ function createNewSessionId() {
 
 module.exports = {
 
-	init: function(app) {
-		if (app.settings.env == 'development') {
+	init: function() {
+		if (process.env.NODE_ENV == 'development') {
 			_sessions = [
 				{username:'admin', sessions:[
 					{id:1,open:true, createdOn:new Date(2011,1,10), candidateName:'joe', interviewerText:'Some interviewer text', candidateText:'some candidate text...', interviewerTextLastUpdateTime:new Date(), candidateTextLastUpdateTime:new Date()},

@@ -9,4 +9,6 @@
 - store code snippets to use during interview
 - auto close sessions
 
+- line numbers in front of texts
+- ability to capture comments/feedback on the interview on the interviewer side
 

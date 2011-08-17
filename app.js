@@ -47,6 +47,12 @@ app.configure(function(){
 	sessions.init(app);
 });
 
+app.configure('test', function(){
+  app.set('db-uri', 'mongodb://localhost/codeshare-test');
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+	isDebug = true;
+});
+
 app.configure('development', function(){
   app.set('db-uri', 'mongodb://localhost/codeshare');
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
@@ -59,6 +65,11 @@ app.configure('production', function(){
 	isDebug = false;
 });
 
+
+// This is especially needed for unit tests, or the process will never exit.
+app.on('close', function() {
+	mongoose.disconnect();
+});
 
 
 // MONGOOSE
@@ -189,6 +200,7 @@ app.get('/interviewer/login', function(req,res){
 });
 
 app.post('/interviewer/login', function(req,res){
+	console.log('Logging in ['+req.body.username+']...');
 	User.findOne({username:req.body.username}, function(err,user) {
 		if (user && user.authenticate(req.body.password)) {
 			console.log("login OK for ["+user.username+"]");
@@ -196,6 +208,7 @@ app.post('/interviewer/login', function(req,res){
 			res.redirect('/interviewer');
 		}
 		else {
+			console.log("login FAILED for ["+req.body.username+"]");
 			res.render('interviewer/login.jade', {interviewer:true});
 		}
 	});
@@ -320,7 +333,10 @@ app.post('/candidate/session/:id/updateMyText', function(req,res){
 // ===============================================
 // START SERVER
 // ===============================================
-
-app.listen(port);
-console.log("Server listening on port %d in %s mode", app.address().port, app.settings.env);
+if  (app.settings.env != 'test') {
+	app.listen(port);
+	console.log("Server listening on port %d in %s mode", app.address().port, app.settings.env);
+} else {
+	app.url = 'http://localhost:'+port;
+}
 
