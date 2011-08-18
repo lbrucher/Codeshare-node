@@ -3,17 +3,27 @@ process.env.NODE_ENV = 'test';
 var testCase = require('nodeunit').testCase
 
 
+function clearSessionsDB(callback) {
+	// TODO remove all sessions from the DB
+	console.log("Clearing all sessions from DB...")
+	callback();
+}
+
 exports.testSuite = function( app, tests ) {
 
+	var __firstTest = true;
 	var __testCount = 0;
 	for(var k in tests)	__testCount++;
-	//console.log("Num tests: "+__testCount);
 
 	return testCase( {
 
 		setUp: function (callback) {
-				//console.log("setup");
+			if (__firstTest) {
+				__firstTest = false;
+				clearSessionsDB(callback);
+			} else {
 				callback();
+			}
 		}
 
 		,tearDown: function (callback) {

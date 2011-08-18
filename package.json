@@ -1,5 +1,5 @@
 {
-    "name": "application-name"
+    "name": "codeshare-node"
   , "version": "0.0.1"
   , "private": true
   , "dependencies": {
@@ -9,5 +9,10 @@
     , "crypto": "0.0.1"
     , "mongoose": "1.7.4"
   }
+  , "devDependencies": {
+	  "nodeunit": ">= 0.5.3"
+	, "tobi": ">= 0.3.1"
+  }
+
 }
 	

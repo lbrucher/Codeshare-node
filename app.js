@@ -74,8 +74,8 @@ app.on('close', function() {
 
 // MONGOOSE
 models.defineModels(mongoose, function() {
-  app.User = User = mongoose.model('UserSchema');
-  db = mongoose.connect(app.set('db-uri'));
+	app.User = User = mongoose.model('UserSchema');
+	db = mongoose.connect(app.set('db-uri'));
 
 
 	// See if there is an admin account. If not, create a standard one.
@@ -336,7 +336,4 @@ app.post('/candidate/session/:id/updateMyText', function(req,res){
 if  (app.settings.env != 'test') {
 	app.listen(port);
 	console.log("Server listening on port %d in %s mode", app.address().port, app.settings.env);
-} else {
-	app.url = 'http://localhost:'+port;
 }
-
