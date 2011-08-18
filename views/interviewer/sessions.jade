@@ -7,7 +7,9 @@
 	table(border=0,cellspacing=0,cellpadding=4)
 		- for(var s in openSessions)
 			tr
-				td [#{openSessions[s].id}]
+				td [
+					span#sessionId #{openSessions[s].id}
+					span ]
 				td #{openSessions[s].createdOn.getYear()+1900}/#{openSessions[s].createdOn.getMonth()+1}/#{openSessions[s].createdOn.getDate()} #{openSessions[s].createdOn.toLocaleTimeString()}
 				td= openSessions[s].status
 				td

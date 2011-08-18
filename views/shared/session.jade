@@ -7,7 +7,7 @@ div.session
 	div.left
 		#myScreenLabel
 		#myScreenContent
-			textarea#myText(rows=20, onkeydown="cs.textarea_onkeydown(event)", onkeyup="cs.textarea_textChanged(event)")
+			textarea#myText(rows=20)
 				#{myText}
 	div.right
 		#otherScreenLabel
@@ -32,10 +32,6 @@ div.session
 		$('#otherScreenLabel').html('Candidate:');
 
 script
-	var cs = new Codeshare(#{session.id}, lastUpdateTime, baseUrl);
-
-	if (#{isDebug})
-		cs.enableLogging();
-
+	var cs = new Codeshare(#{session.id}, baseUrl, lastUpdateTime, document.getElementById('myText'), document.getElementById('otherText'), #{isDebug}?$('#log'):null);
 	cs.start();
 

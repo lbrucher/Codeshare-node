@@ -1,17 +1,33 @@
 
-function Codeshare(_sessionId, _lastOtherUpdateTime, _baseUrl)
+function Codeshare(_sessionId, _baseUrl, _lastOtherUpdateTime, _elMyText, _elOtherText, _elLog)
 {
 	this.sessionId = _sessionId;
 	this.lastOtherUpdateTime = _lastOtherUpdateTime;
 	this.urlSessionClosed = _baseUrl + '/closed';
 	this.urlRefreshOtherText = _baseUrl + '/refreshOtherText';
 	this.urlUpdateMyText = _baseUrl + '/updateMyText';
-	
+	this.elMyText = _elMyText;
+	this.elOtherText = _elOtherText;
+	this.elLog = _elLog || null;
+
 	this.otherUpdater = null;
 	this.myUpdater = null;
 	this.myText = null;
 
+	var self=this;
+
+
+	this.logCounter = 0;
 	this.log = function(msg) {};
+	if (this.elLog) {
+		this.log = function(msg) {
+			self.elLog.innerHTML = (++self.logCounter) + ": " + msg + "<br/>" + self.elLog.innerHTML;
+		}
+	}
+
+	// register key strokes event handlers on myText
+	this.elMyText.onkeydown = function(e) {self.textarea_onkeydown(e);};
+	this.elMyText.onkeyup = function(e) {self.textarea_textChanged(e);};
 }
 
 Codeshare.prototype.start = function()
@@ -49,7 +65,7 @@ Codeshare.prototype.updateOtherText = function(data)
 	if (data.hasOtherText)
 	{
 		this.lastOtherUpdateTime = data.lastOtherUpdateTime;
-		document.getElementById("otherText").value = data.otherText;
+		this.elOtherText.value = data.otherText;
 	}
 }
 
@@ -146,20 +162,24 @@ Codeshare.prototype.textarea_textChanged = function(evt)
 {
 	var e = window.event || evt;
 	var t = e.target ? e.target : e.srcElement ? e.srcElement : e.which;
-	var txt = t.value;
 
-	if (this.myText == txt)
+	this.myTextChanged(t.value);
+}
+
+
+Codeshare.prototype.myTextChanged = function(newText)
+{
+	if (this.myText == newText)
 		return;
 
-	//this.log("textarea changed: ["+txt+"]");
-
 	if (this.myUpdater != null)
-			clearTimeout(this.myUpdater);
+		clearTimeout(this.myUpdater);
 	var self = this;
-	this.myText = txt;
+	this.myText = newText;
 	this.myUpdater = setTimeout( function() { self.updateMyText() }, 1000);
 }
 
+/*
 Codeshare.prototype.enableLogging = function()
 {
 	this.logCounter = 0;
@@ -168,7 +188,7 @@ Codeshare.prototype.enableLogging = function()
 		el.innerHTML = (++this.logCounter) + ": " + msg + "<br/>" + el.innerHTML;
 	}
 }
-		
+*/		
 	
 //setOtherUpdater(true);
 //setTimeout("document.getElementById('myText').focus()", 200);

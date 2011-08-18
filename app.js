@@ -33,30 +33,30 @@ var port = Number(process.env.PORT || process.env.VCAP_APP_PORT || 8000);
 
 // Configuration
 app.configure(function(){
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
+	app.set('views', __dirname + '/views');
+	app.set('view engine', 'jade');
 	//app.use(express.logger());
 	app.use(stylus.middleware({ src: __dirname + '/public' }));
-  app.use(express.bodyParser());
+	app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	app.use(express.session({ secret: "4roo0cff 3elk" }));
-  app.use(express.methodOverride());
-  app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
+	app.use(express.methodOverride());
+	app.use(app.router);
+	app.use(express.static(__dirname + '/public'));
 
 	sessions.init(app);
 });
 
 app.configure('test', function(){
-  app.set('db-uri', 'mongodb://localhost/codeshare-test');
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+	app.set('db-uri', 'mongodb://localhost/codeshare-test');
+	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 	isDebug = true;
 });
 
 app.configure('development', function(){
-  app.set('db-uri', 'mongodb://localhost/codeshare');
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
-	isDebug = true;
+	app.set('db-uri', 'mongodb://localhost/codeshare');
+	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+	isDebug = false;
 });
 
 app.configure('production', function(){
@@ -263,10 +263,12 @@ app.get('/interviewer/session/:id', secured, function(req,res){
 
 
 app.get('/interviewer/session/:id/refreshOtherText/:lastOtherUpdateTime', secured, function(req,res){
+	console.log('Intervierwer: refresh other text');
 	res.send( getRefreshedText(sessions.get(req.params.id), req.params.lastOtherUpdateTime, "candidate") );
 });
 
 app.post('/interviewer/session/:id/updateMyText', secured, function(req,res){
+	console.log('Intervierwer: update my text ['+req.params.id+'], body ['+req.body.myText+']');
 	var s = sessions.get(req.params.id);
 	if (s != null && s.open)
 	{
@@ -313,6 +315,7 @@ app.get('/candidate/session/:id/closed', function(req,res){
 
 
 app.get('/candidate/session/:id/refreshOtherText/:lastOtherUpdateTime', function(req,res){
+	console.log('Candidate: refresh other text');
 	res.send( getRefreshedText(sessions.get(req.params.id), req.params.lastOtherUpdateTime, "interviewer") );
 });
 
