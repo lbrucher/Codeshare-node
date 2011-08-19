@@ -2,13 +2,20 @@
 script(type='text/javascript', src='/javascripts/jquery.min.js')
 script(type='text/javascript', src='/javascripts/jquery.timers-1.0.0.js')
 script(type='text/javascript', src='/javascripts/cs-session.js')
+script(type='text/javascript', src='/javascripts/jquery-linedtextarea.js')
+link(rel='stylesheet', href='/stylesheets/jquery-linedtextarea.css')
 
 div.session
 	div.left
 		#myScreenLabel
 		#myScreenContent
-			textarea#myText(rows=20)
+			textarea#myText.lined(rows=20)
 				#{myText}
+		- if (!isCandidate)
+			#myCommentsLabel Interview comments:
+			textarea#myComments(rows=10)
+				#{myComments}
+
 	div.right
 		#otherScreenLabel
 		#otherScreenContent
@@ -32,6 +39,10 @@ div.session
 		$('#otherScreenLabel').html('Candidate:');
 
 script
-	var cs = new Codeshare(#{session.id}, baseUrl, lastUpdateTime, document.getElementById('myText'), document.getElementById('otherText'), #{isDebug}?$('#log'):null);
+	//$("#myText").linedtextarea();
+
+	var cs = new Codeshare(#{session.id}, baseUrl, lastUpdateTime);
+	cs.setTexts(document.getElementById('myText'), document.getElementById('otherText'), document.getElementById('myComments'));
+	cs.setLog( #{isDebug}?$('#log'):null );
 	cs.start();
 

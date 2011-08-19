@@ -1,3 +1,6 @@
+- line numbers in front of texts
+- ability to capture comments/feedback on the interview on the interviewer side
+
 - unit tests
 - HTTPs for interviewer
 - change password
@@ -9,6 +12,4 @@
 - store code snippets to use during interview
 - auto close sessions
 
-- line numbers in front of texts
-- ability to capture comments/feedback on the interview on the interviewer side
 
