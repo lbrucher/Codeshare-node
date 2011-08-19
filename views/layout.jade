@@ -11,16 +11,16 @@ html
 						li.left
 							h1
 								a(href='/interviewer') CodeShare - Interviewer
-						li.right.signout
-							.divider |
+						li.right
 							a#logout(href='/interviewer/logout') Sign Out
 							span(style='padding-left:6px;') (#{currentUser.username})
 						- if (typeof session != 'undefined')
 							li.right Session #{session.id}
+								.divider |
 						- if (currentUser.username == 'admin')
 							li.right
-								.divider |
 								a(href='/users') Users
+								.divider |
 
 					- else
 						li.left
