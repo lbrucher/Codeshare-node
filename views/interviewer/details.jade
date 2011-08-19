@@ -1,0 +1,11 @@
+table(border=0)
+	tr
+		td Code:
+		td #{session.id}
+	tr
+		td State:
+		td #{session.open?'Open':'Closed'}
+	tr(valign='top')
+		td Comments:
+		td
+			pre(style='margin:0') #{session.interviewerComments}
