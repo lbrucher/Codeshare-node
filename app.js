@@ -13,6 +13,8 @@ var User, Session;
 var isDebug = false;
 var isHttps = false;
 
+var LOG_ERROR=1, LOG_WARNING=2, LOG_DEBUG=3, LOG_TRACE=4;
+
 
 // Application/Server    
 var app;
@@ -48,18 +50,21 @@ app.configure(function(){
 });
 
 app.configure('test', function(){
+	app.set('log-level', LOG_DEBUG);
 	app.set('db-uri', 'mongodb://localhost/codeshare-test');
 	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 	isDebug = true;
 });
 
 app.configure('development', function(){
+	app.set('log-level', LOG_DEBUG);
 	app.set('db-uri', 'mongodb://localhost/codeshare');
 	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 	isDebug = false;
 });
 
 app.configure('production', function(){
+  app.set('log-level', LOG_WARNING);
   app.set('db-uri', process.env.MONGOHQ_URL);
   app.use(express.errorHandler()); 
 	isDebug = false;
@@ -119,7 +124,7 @@ function getRefreshedText(aSession, lastUpdateTime, who)
 
 function login(req, res, username, password)
 {
-	console.log('Logging in ['+username+']...');
+	log(LOG_TRACE,'Logging in <'+username+'>...');
 	User.findOne({username:username}, function(err,user) {
 		if (user && user.authenticate(password)) {
 			console.log("login OK for ["+user.username+"]");
@@ -127,7 +132,7 @@ function login(req, res, username, password)
 			res.redirect('/interviewer');
 		}
 		else {
-			console.log("login FAILED for ["+username+"]");
+			log(LOG_TRACE, 'login FAILED for <'+username+'>');
 			res.render('interviewer/login.jade', {interviewer:true});
 		}
 	});
@@ -162,6 +167,11 @@ function securedAdmin(req, res, next) {
 	}
 	
 	res.redirect('/interviewer');
+}
+
+function log(level, message) {
+	if (level <= app.set('log-level'))
+		console.log(message);
 }
 
 
@@ -281,7 +291,7 @@ app.get('/interviewer/session/:id', secured, function(req,res){
 
 
 app.get('/interviewer/session/:id/refreshOtherText/:lastOtherUpdateTime', secured, function(req,res){
-	//console.log('Intervierwer: refresh other text');
+	log(LOG_TRACE, 'Interviewer: checking for candidate text update');
 	res.send( getRefreshedText(sessions.get(req.params.id), req.params.lastOtherUpdateTime, "candidate") );
 });
 
@@ -293,6 +303,11 @@ app.post('/interviewer/session/:id/updateMyText', secured, function(req,res){
 		s.interviewerText = req.body.myText;
 		s.interviewerTextLastUpdateTime = new Date();
 		sessions.update(s);
+		log(LOG_DEBUG,'Interviewer: updated session <'+s.id+'> with new interviewer text');
+	}
+	else
+	{
+		log(LOG_DEBUG,'Interviewer: cannot update interviewer text, session null or closed!');
 	}
 
 	res.send( getRefreshedText(s, req.body.lastOtherUpdateTime, "candidate") );
@@ -342,7 +357,7 @@ app.get('/candidate/session/:id/closed', function(req,res){
 
 
 app.get('/candidate/session/:id/refreshOtherText/:lastOtherUpdateTime', function(req,res){
-	//console.log('Candidate: refresh other text');
+	log(LOG_TRACE, 'Candidate: checking for interviewer text update');
 	res.send( getRefreshedText(sessions.get(req.params.id), req.params.lastOtherUpdateTime, "interviewer") );
 });
 
@@ -353,6 +368,11 @@ app.post('/candidate/session/:id/updateMyText', function(req,res){
 		s.candidateText = req.body.myText;
 		s.candidateTextLastUpdateTime = new Date();
 		sessions.update(s);
+		log(LOG_DEBUG,'Candidate: updated session <'+s.id+'> with new candidate text');
+	}
+	else
+	{
+		log(LOG_DEBUG,'Candidate: cannot update candidate text, session null or closed!');
 	}
 
 	res.send( getRefreshedText(s, req.body.lastOtherUpdateTime, "interviewer") );
