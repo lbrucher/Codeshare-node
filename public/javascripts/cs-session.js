@@ -60,16 +60,18 @@ Codeshare.prototype.refreshOtherText = function()
 		this.log("Requesting other text update...");
 
 		var self = this;
+		var ts = new Date().getTime();
 
 		$.get(this.urlRefreshOtherText+'/'+self.lastOtherUpdateTime,
-			function(data, status) {
+			  { ts:ts }
+			, function(data, status) {
 				if (status == 'success')
 					self.updateOtherText(data);
 				else
 					self.log("UpdateOtherText: status:["+status+"]");
 				self.setOtherUpdater();
-			},
-			"json"
+			  }
+			, "json"
 		);
 	}
 	catch(e)
