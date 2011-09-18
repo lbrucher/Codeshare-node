@@ -9,7 +9,7 @@ var express = require('express'),
 
 // Globals
 var db;
-var User, Session;
+var User, Session, UserGroup, SavedText;
 var isDebug = false;
 var isHttps = false;
 
@@ -75,6 +75,9 @@ app.on('close', function() {
 // MONGOOSE
 models.defineModels(mongoose, function() {
   app.User = User = mongoose.model('UserSchema');
+  app.UserGroup = UserGroup = mongoose.model('UserGroupSchema');
+  app.SavedText = SavedText = mongoose.model('SavedTextSchema');
+
   db = mongoose.connect(app.set('db-uri'));
 
 

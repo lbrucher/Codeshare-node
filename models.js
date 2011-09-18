@@ -6,12 +6,39 @@ function defineModels(mongoose, callback) {
       ObjectId = Schema.ObjectId;
 
 
+	// ----------------------------------------
+	// SAVED TEXT
+	// ----------------------------------------
+  SavedTextSchema = new Schema({
+      'name': { type: String, required: true, index: { unique: true } }
+    , 'description': String
+    , 'content': String
+  });
+
+	mongoose.model('SavedTextSchema', SavedTextSchema);
+
+
+	// ----------------------------------------
+	// USER GROUP
+	// ----------------------------------------
+  UserGroupSchema = new Schema({
+      'name': { type: String, required: true, index: { unique: true } }
+    , 'saved_texts': [SavedTextSchema]		// TODO: replace with DBRefs
+  });
+
+	mongoose.model('UserGroupSchema', UserGroupSchema);
+
+
+	// ----------------------------------------
+	// USER
+	// ----------------------------------------
   UserSchema = new Schema({
     'username': { type: String, required: true, index: { unique: true } },
     'password_hashed': String,
     'first_name': String,
     'last_name': String,
-    'salt': String
+    'salt': String,
+    'group': UserGroupSchema
   });
 
   UserSchema.virtual('password')
@@ -36,6 +63,9 @@ function defineModels(mongoose, callback) {
 
 
 	mongoose.model('UserSchema', UserSchema);
+
+
+
 
 	callback();
 }
