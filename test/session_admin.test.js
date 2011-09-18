@@ -1,15 +1,14 @@
 var helper = require('./app_helper.js')
-	, tobi = require('tobi')
 	, assert = require('assert')
-	, app = require('../app.js')
 	, sessions = require('../sessions.mem.js')
 	;
 
 
-module.exports = helper.testSuite(app, {
+module.exports = helper.testSuite( {
 
+tests: {
 testSessionList: function(test) {
-	var browser = tobi.createBrowser(app);
+	var browser = helper.createBrowser();
 	helper.login(browser, function() {
 		browser.get('/interviewer', function(res, $){
 			res.should.have.status(200);
@@ -24,7 +23,7 @@ testSessionList: function(test) {
 }
 
 ,testAddSession: function(test) {
-	var browser = tobi.createBrowser(app);
+	var browser = helper.createBrowser();
 	helper.login(browser, function() {
 		browser.get('/interviewer', function(res, $){
 			res.should.have.status(200);
@@ -38,5 +37,5 @@ testSessionList: function(test) {
 	});
 }
 
-});
+}});
 

@@ -1,26 +1,56 @@
 process.env.NODE_ENV = 'test';
 
-var testCase = require('nodeunit').testCase
+var   app = null
+	, testCase = require('nodeunit').testCase
+	, App = require('../app.js')
+	, tobi = require('tobi')
+	;
 
 
-function clearSessionsDB(callback) {
+
+function _clearSessionsDB(callback) {
 	// TODO remove all sessions from the DB
 	console.log("Clearing all sessions from DB...")
 	callback();
 }
 
-exports.testSuite = function( app, tests ) {
+function _suiteSetup(next) {
+	_clearSessionsDB( function() {
+		app = App.createServer();
+		next();
+	});		
+}
+
+function _suiteTearDown(next) {
+	if (app)
+		app.shutdown(next);
+	else
+		next();
+}
+
+
+exports.app = app;
+
+exports.createBrowser = function() {
+	return tobi.createBrowser(app, { external: true });
+}
+
+exports.testSuite = function(testSuite) {
+
+	var __moduleSetup = testSuite['suiteSetup'] || function(cb) { cb(); };
+	var __moduleTearDown = testSuite['suiteTearDown'] || function(cb) { cb(); };
+	var __moduleTests = testSuite['tests'];
 
 	var __firstTest = true;
 	var __testCount = 0;
-	for(var k in tests)	__testCount++;
+	for(var k in __moduleTests)	__testCount++;
 
 	return testCase( {
 
 		setUp: function (callback) {
 			if (__firstTest) {
 				__firstTest = false;
-				clearSessionsDB(callback);
+				_suiteSetup( function() { __moduleSetup(callback); });
 			} else {
 				callback();
 			}
@@ -29,13 +59,13 @@ exports.testSuite = function( app, tests ) {
 		,tearDown: function (callback) {
 				//console.log("teardown");
 				if (--__testCount <= 0) {
-					console.log("Shutting down app");
-					app.close();
+					_suiteTearDown( function() { __moduleTearDown(callback); });
 				}
-				callback();
+				else
+					callback();
 		}
 		
-		,tests: tests
+		,tests: __moduleTests
 	});
 
 }

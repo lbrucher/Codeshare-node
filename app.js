@@ -12,96 +12,16 @@ var db;
 var User, Session;
 var isDebug = false;
 var isHttps = false;
+var app;
 
 var LOG_ERROR=1, LOG_WARNING=2, LOG_DEBUG=3, LOG_TRACE=4;
 
-
-// Application/Server    
-var app;
-if (isHttps) {
-	var serverOptions = {
-		key: fs.readFileSync(__dirname+'/privatekey.pem'),
-		cert: fs.readFileSync(__dirname+'/certificate.pem')
-	};
-	app = express.createServer(serverOptions);
-} else {
-	app = express.createServer();
-}
-module.exports = app;
-
 //var host = process.env.VCAP_APP_HOST || 'localhost';
-var port = Number(process.env.PORT || process.env.VCAP_APP_PORT || 3000);
 
 
-// Configuration
-app.configure(function(){
-	app.set('views', __dirname + '/views');
-	app.set('view engine', 'jade');
-	//app.use(express.logger());
-	app.use(stylus.middleware({ src: __dirname + '/public' }));
-	app.use(express.bodyParser());
-	app.use(express.cookieParser());
-	app.use(express.session({ secret: "4roo0cff 3elk" }));
-	app.use(express.methodOverride());
-	app.use(app.router);
-	app.use(express.static(__dirname + '/public'));
-
-	sessions.init(app);
-});
-
-app.configure('test', function(){
-	app.set('log-level', LOG_DEBUG);
-	app.set('db-uri', 'mongodb://localhost/codeshare-test');
-	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
-	isDebug = true;
-});
-
-app.configure('development', function(){
-	app.set('log-level', LOG_DEBUG);
-	app.set('db-uri', 'mongodb://localhost/codeshare');
-	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
-	isDebug = false;
-});
-
-app.configure('production', function(){
-  app.set('log-level', LOG_WARNING);
-  app.set('db-uri', process.env.MONGOHQ_URL);
-  app.use(express.errorHandler()); 
-	isDebug = false;
-});
-
-
-// This is especially needed for unit tests, or the process will never exit.
-app.on('close', function() {
-	mongoose.disconnect();
-});
-
-
-// MONGOOSE
-models.defineModels(mongoose, function() {
-	app.User = User = mongoose.model('UserSchema');
-	db = mongoose.connect(app.set('db-uri'));
-
-
-	// See if there is an admin account. If not, create a standard one.
-	User.findOne( {username:'admin'}, function(err,user) {
-		if (!user) {
-			// Create the admin account
-			user = new User({username:'admin', password:'admin', first_name:'super', last_name:'user'});
-			user.save(function(err) {
-				if (err)
-					console.log('FAILED creating the admin account: '+err);
-				else
-					console.log('Created the admin account');
-			});
-		}
-	});
-
-})
-
-
-
+// //////////////////////////////////////////////////////////////////////////
 // HELPERS
+// //////////////////////////////////////////////////////////////////////////
 
 function getRefreshedText(aSession, lastUpdateTime, who)
 {
@@ -173,6 +93,100 @@ function log(level, message) {
 	if (level <= app.set('log-level'))
 		console.log(message);
 }
+
+
+
+// //////////////////////////////////////////////////////////////////////////
+// SERVER CREATION
+// //////////////////////////////////////////////////////////////////////////
+
+module.exports.createServer = function() {
+
+	// Application/Server    
+	if (isHttps) {
+		var serverOptions = {
+			key: fs.readFileSync(__dirname+'/privatekey.pem'),
+			cert: fs.readFileSync(__dirname+'/certificate.pem')
+		};
+		console.log("Creating new HTTPS server...");
+		app = express.createServer(serverOptions);
+	} else {
+		console.log("Creating new HTTP server...");
+		app = express.createServer();
+	}
+
+
+	app.shutdown = function(callback) {
+		this.close();
+		callback();
+	}
+
+
+// Configuration
+app.configure(function(){
+	app.set('views', __dirname + '/views');
+	app.set('view engine', 'jade');
+	//app.use(express.logger());
+	app.use(stylus.middleware({ src: __dirname + '/public' }));
+	app.use(express.bodyParser());
+	app.use(express.cookieParser());
+	app.use(express.session({ secret: "4roo0cff 3elk" }));
+	app.use(express.methodOverride());
+	app.use(app.router);
+	app.use(express.static(__dirname + '/public'));
+
+	sessions.init(app);
+});
+
+app.configure('test', function(){
+	app.set('log-level', LOG_DEBUG);
+	app.set('db-uri', 'mongodb://localhost/codeshare-test');
+	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+	isDebug = true;
+});
+
+app.configure('development', function(){
+	app.set('log-level', LOG_DEBUG);
+	app.set('db-uri', 'mongodb://localhost/codeshare');
+	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+	isDebug = false;
+});
+
+app.configure('production', function(){
+  app.set('log-level', LOG_WARNING);
+  app.set('db-uri', process.env.MONGOHQ_URL);
+  app.use(express.errorHandler()); 
+	isDebug = false;
+});
+
+
+// This is especially needed for unit tests, or the process will never exit.
+app.on('close', function() {
+	mongoose.disconnect();
+});
+
+
+// MONGOOSE
+models.defineModels(mongoose, function() {
+	app.User = User = mongoose.model('UserSchema');
+	db = mongoose.connect(app.set('db-uri'));
+
+
+	// See if there is an admin account. If not, create a standard one.
+	User.findOne( {username:'admin'}, function(err,user) {
+		if (!user) {
+			// Create the admin account
+			user = new User({username:'admin', password:'admin', first_name:'super', last_name:'user'});
+			user.save(function(err) {
+				if (err)
+					console.log('FAILED creating the admin account: '+err);
+				else
+					console.log('Created the admin account');
+			});
+		}
+	});
+
+})
 
 
 // ===============================================
@@ -378,12 +392,23 @@ app.post('/candidate/session/:id/updateMyText', function(req,res){
 	res.send( getRefreshedText(s, req.body.lastOtherUpdateTime, "interviewer") );
 });
 
+	return app;
+}
+
+module.exports.app = app;
 
 
 // ===============================================
 // START SERVER
 // ===============================================
+/*
+module.exports = app;
+
 if  (app.settings.env != 'test') {
+	
 	app.listen(port);
 	console.log("Server listening on port %d in %s mode", app.address().port, app.settings.env);
+} else {
+	console.log("Started server under test mode...");
 }
+*/

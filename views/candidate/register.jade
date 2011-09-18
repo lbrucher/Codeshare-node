@@ -7,8 +7,9 @@ form(method='post', action='/candidate/register')
 		input#code(type='text', name='code', size=6, value='#{code}')
 	span
 		input(type='submit', value='Register')
-	span(style='color:red; padding-left:8px;')
-		#{error}
+	- if (error)
+		span#error(style='color:red; padding-left:8px;')
+			#{error}
 
 script
 	document.getElementById('code').focus();
