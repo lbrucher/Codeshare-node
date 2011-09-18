@@ -30,7 +30,7 @@ if (isHttps) {
 module.exports = app;
 
 //var host = process.env.VCAP_APP_HOST || 'localhost';
-var port = Number(process.env.PORT || process.env.VCAP_APP_PORT || 8000);
+var port = Number(process.env.PORT || process.env.VCAP_APP_PORT || 3000);
 
 
 // Configuration
@@ -236,7 +236,7 @@ app.post('/interviewer/login', function(req,res){
 
 app.get('/interviewer/logout', function(req,res){
 	req.session.destroy();
-  res.redirect('/interviewer');
+	res.redirect('/interviewer');
 });
 
 app.get('/interviewer/createNew', secured, function(req,res){
