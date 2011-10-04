@@ -32,36 +32,36 @@ var port = Number(process.env.PORT || process.env.VCAP_APP_PORT || 8000);
 
 
 // Configuration
-app.configure(function(){
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
+app.configure(function() {
+	app.set('views', __dirname + '/views');
+	app.set('view engine', 'jade');
 	//app.use(express.logger());
 	app.use(stylus.middleware({ src: __dirname + '/public' }));
-  app.use(express.bodyParser());
+	app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	app.use(express.session({ secret: "4roo0cff 3elk" }));
-  app.use(express.methodOverride());
-  app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
+	app.use(express.methodOverride());
+	app.use(app.router);
+	app.use(express.static(__dirname + '/public'));
 
 	sessions.init(app);
 });
 
 app.configure('test', function(){
-  app.set('db-uri', 'mongodb://localhost/codeshare-test');
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+	app.set('db-uri', 'mongodb://localhost/codeshare-test');
+	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 	isDebug = true;
 });
 
 app.configure('development', function(){
-  app.set('db-uri', 'mongodb://localhost/codeshare');
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+	app.set('db-uri', 'mongodb://localhost/codeshare');
+	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 	isDebug = true;
 });
 
 app.configure('production', function(){
-  app.set('db-uri', process.env.MONGOHQ_URL);
-  app.use(express.errorHandler()); 
+	app.set('db-uri', process.env.MONGOHQ_URL);
+	app.use(express.errorHandler()); 
 	isDebug = false;
 });
 
@@ -74,11 +74,11 @@ app.on('close', function() {
 
 // MONGOOSE
 models.defineModels(mongoose, function() {
-  app.User = User = mongoose.model('UserSchema');
-  app.UserGroup = UserGroup = mongoose.model('UserGroupSchema');
-  app.SavedText = SavedText = mongoose.model('SavedTextSchema');
+	app.User = User = mongoose.model('UserSchema');
+	app.UserGroup = UserGroup = mongoose.model('UserGroupSchema');
+	app.SavedText = SavedText = mongoose.model('SavedTextSchema');
 
-  db = mongoose.connect(app.set('db-uri'));
+	db = mongoose.connect(app.set('db-uri'));
 
 
 	// See if there is an admin account. If not, create a standard one.

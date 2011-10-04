@@ -24,7 +24,7 @@ function defineModels(mongoose, callback) {
 	// ----------------------------------------
 	UserGroupSchema = new Schema({
 		  'name': { type: String, required: true, index: { unique: true } }
-		, 'saved_texts': [SavedTextSchema]		// TODO: replace with DBRefs
+		, 'saved_texts': [SavedTextSchema]
 	});
 
 	mongoose.model('UserGroupSchema', UserGroupSchema);
@@ -39,7 +39,7 @@ function defineModels(mongoose, callback) {
 		, 'first_name': String
 		, 'last_name': String
 		, 'salt': String
-		, 'group': [UserGroupSchema]
+		, '_group': { type: Schema.ObjectId, ref: 'UserGroupSchema' }
 	});
 
 	UserSchema.virtual('password')
