@@ -80,6 +80,23 @@ models.defineModels(mongoose, function() {
 
 	db = mongoose.connect(app.set('db-uri'));
 
+/*
+	// See if there is an admin group. If not, create a standard one.
+	var adminGroup = null;
+	UserGroup.findOne( {name:'admin'}, function(err,group) {
+		adminGroup = group;
+		if (!group) {
+			// Create the admin group
+			adminGroup = new UserGroup({name:'admin');
+			adminGroup.save(function(err) {
+				if (err)
+					console.log('FAILED creating the admin group: '+err);
+				else
+					console.log('Created the admin group');
+			});
+		}
+	});
+*/
 
 	// See if there is an admin account. If not, create a standard one.
 	User.findOne( {username:'admin'}, function(err,user) {
@@ -158,11 +175,15 @@ app.get('/', function(req, res){
 });
 
 // ---------------------------
-// USER MANAGEMENT
+// USER/GROUP MANAGEMENT
 // ---------------------------
 app.get('/users', secured, securedAdmin, function(req,res){
 	User.find({}, function(err, users) {
-		res.render('user/list.jade', {currentUser:req.user, users:users});
+		if (!err) {
+			UserGroup.find({}, function(err2, groups) {
+				res.render('user/list.jade', {currentUser:req.user, users:users, groups:groups});
+			});
+		}
 	});
 });
 
@@ -187,6 +208,64 @@ app.get('/users/:un/delete', secured, securedAdmin, function(req,res){
 	});
 */
 		res.redirect('/users');
+});
+
+
+app.get('/groups/new', secured, securedAdmin, function(req,res){
+	res.render('user/editGroup.jade', {currentUser:req.user, group:new UserGroup(), newGroup:true, error:null});
+});
+
+app.post('/groups/new', secured, securedAdmin, function(req,res){
+	var text = new SavedText();
+	text.name = 'dummy';
+
+	var group = new UserGroup();
+	group.name = req.body.group.name;
+	group.saved_texts.push(text);
+
+	group.save(function(err) {
+		if (err)
+			res.render('user/editGroup.jade', {currentUser:req.user, group:group, newGroup:true, error:err});
+		else
+			res.redirect('/users');
+	});
+});
+
+app.get('/groups/:id/edit', secured, securedAdmin, function(req,res){
+	UserGroup.findOne({_id:req.params.id}, function(err,group) {
+//console.log(group);
+		if (err)
+			res.redirect('/users');
+		else
+			res.render('user/editGroup.jade', {currentUser:req.user, group:group, newGroup:false, error:null});
+	});
+});
+
+app.post('/groups/:id/edit', secured, securedAdmin, function(req,res){
+	UserGroup.findOne({_id:req.params.id}, function(err,group) {
+		group.name = req.body.group.name;
+//console.log(group);
+		group.save(function(err) {
+//console.log("ERR="+err);
+			if (err)
+				res.render('user/editGroup.jade', {currentUser:req.user, group:group, newGroup:false, error:err});
+			else
+				res.redirect('/users');
+		});
+	});
+});
+
+
+app.get('/groups/:id/delete', secured, securedAdmin, function(req,res){
+	UserGroup.findOne({_id:req.params.id}, function(err,group) {
+		if (!err) {
+			group.remove(function(){
+				res.redirect('/users');
+			});
+		}
+		else
+			res.redirect('/users');
+	});
 });
 
 

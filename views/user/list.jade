@@ -1,4 +1,4 @@
-
+h1 Users
 a(href='/users/new') Create New
 br
 br
@@ -9,4 +9,20 @@ table(border=0,cellspacing=0,cellpadding=4)
 			td
 				- if (users[u].username != 'admin')
 					a(href='/users/'+users[u].username+'/delete') Delete
+
+br
+br
+h1 Groups
+a(href='/groups/new') Create New
+br
+br
+table(border=0,cellspacing=0,cellpadding=4)
+	- for(var grp in groups)
+		tr
+			td #{groups[grp].name}
+			td
+				- if (groups[grp].name != 'admin')
+					a(href='/groups/'+groups[grp]._id+'/edit') Edit
+					|
+					a(href='/groups/'+groups[grp]._id+'/delete') Delete
 
