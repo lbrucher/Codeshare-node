@@ -1,3 +1,5 @@
+script(type='text/javascript', src='/javascripts/jquery.min.js')
+
 h1 Users
 a(href='/users/new') Create New
 br
@@ -8,7 +10,7 @@ table(border=0,cellspacing=0,cellpadding=4)
 			td #{users[u].username}
 			td
 				- if (users[u].username != 'admin')
-					a(href='/users/'+users[u].username+'/delete') Delete
+					a.delete(href='/users/'+users[u].username) Delete
 
 br
 br
@@ -24,5 +26,28 @@ table(border=0,cellspacing=0,cellpadding=4)
 				- if (groups[grp].name != 'admin')
 					a(href='/groups/'+groups[grp]._id+'/edit') Edit
 					|
-					a(href='/groups/'+groups[grp]._id+'/delete') Delete
+					a.delete(href='/groups/'+groups[grp]._id) Delete
+
+script
+	$('a.delete').live('click', function(e) {
+		e.preventDefault();
+		if (confirm('Delete this group?')) {
+			var element = $(this),
+				form = $('<form></form>');
+			form
+				.attr({
+					method: 'POST',
+					action: element.attr('href')
+				})
+				.hide()
+				.append('<input type="hidden" />')
+				.find('input')
+				.attr({
+					'name': '_method',
+					'value': 'delete'
+				})
+				.end()
+				.submit();
+		}
+	});
 

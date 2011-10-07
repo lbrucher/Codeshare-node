@@ -1,0 +1,6 @@
+p
+	u New Group
+br
+
+form(method='post', action='/groups/new')
+	!=partial('shared/editGroup.jade', { locals: {but_submit:'New Group', group_name:group.name,error:error} })

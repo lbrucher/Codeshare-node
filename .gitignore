@@ -1,4 +1,6 @@
 npm-debug.log
 node_modules/
+.monitor
 public/stylesheets/style.css
+
 

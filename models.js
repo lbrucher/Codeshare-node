@@ -11,9 +11,9 @@ function defineModels(mongoose, callback) {
 	// SAVED TEXT
 	// ----------------------------------------
 	SavedTextSchema = new Schema({
-		  'name': { type: String, required: true, index: { unique: true } }
-		, 'description': String
-		, 'content': String
+		  name: { type: String, required: true/*, index: { unique: true }*/ }
+		, description: String
+		, content: String
 	});
 
 	mongoose.model('SavedTextSchema', SavedTextSchema);
@@ -23,8 +23,8 @@ function defineModels(mongoose, callback) {
 	// USER GROUP
 	// ----------------------------------------
 	UserGroupSchema = new Schema({
-		  'name': { type: String, required: true, index: { unique: true } }
-		, 'saved_texts': [SavedTextSchema]
+		  name: { type: String, required: true, index: { unique: true } }
+		, saved_texts: [SavedTextSchema]
 	});
 
 	mongoose.model('UserGroupSchema', UserGroupSchema);

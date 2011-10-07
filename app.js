@@ -137,6 +137,22 @@ function getRefreshedText(aSession, lastUpdateTime, who)
 }
 
 
+function login(req,res,username, password) {
+	console.log('Logging in ['+username+']...');
+	User.findOne({username:username}, function(err,user) {
+		if (user && user.authenticate(password)) {
+			console.log("login OK for ["+user.username+"]");
+			req.session.username = user.username;
+			res.redirect('/interviewer');
+		}
+		else {
+			console.log("login FAILED for ["+username+"]");
+			res.render('interviewer/login.jade', {interviewer:true});
+		}
+	});
+}
+
+
 function secured(req, res, next) {
 	if (req.session.username)
 	{
@@ -150,9 +166,14 @@ function secured(req, res, next) {
 			}
 		});
 	}
+	else if (app.settings.env == 'development')
+	{
+		login(req,res,'admin', 'admin');
+	}
 	else
 		res.redirect('/interviewer/login');
 }
+
 
 function securedAdmin(req, res, next) {
 	if (req.session.username == 'admin')
@@ -170,7 +191,6 @@ function securedAdmin(req, res, next) {
 // ===============================================
 
 app.get('/', function(req, res){
-//  res.redirect('/candidate');
 	res.render('index.jade');
 });
 
@@ -201,7 +221,7 @@ app.post('/users/new', secured, securedAdmin, function(req,res){
 	});
 });
 
-app.get('/users/:un/delete', secured, securedAdmin, function(req,res){
+app.del('/users/:un', secured, securedAdmin, function(req,res){
 /*
 	users.remove(req.params.un, function(err) {
 		res.redirect('/users');
@@ -212,7 +232,7 @@ app.get('/users/:un/delete', secured, securedAdmin, function(req,res){
 
 
 app.get('/groups/new', secured, securedAdmin, function(req,res){
-	res.render('user/editGroup.jade', {currentUser:req.user, group:new UserGroup(), newGroup:true, error:null});
+	res.render('user/newGroup.jade', {currentUser:req.user, group:new UserGroup({name:''}), error:null});
 });
 
 app.post('/groups/new', secured, securedAdmin, function(req,res){
@@ -221,11 +241,11 @@ app.post('/groups/new', secured, securedAdmin, function(req,res){
 
 	var group = new UserGroup();
 	group.name = req.body.group.name;
-	group.saved_texts.push(text);
+//	group.saved_texts.push(text);
 
 	group.save(function(err) {
 		if (err)
-			res.render('user/editGroup.jade', {currentUser:req.user, group:group, newGroup:true, error:err});
+			res.render('user/newGroup.jade', {currentUser:req.user, group:group, error:err});
 		else
 			res.redirect('/users');
 	});
@@ -233,22 +253,19 @@ app.post('/groups/new', secured, securedAdmin, function(req,res){
 
 app.get('/groups/:id/edit', secured, securedAdmin, function(req,res){
 	UserGroup.findOne({_id:req.params.id}, function(err,group) {
-//console.log(group);
 		if (err)
 			res.redirect('/users');
 		else
-			res.render('user/editGroup.jade', {currentUser:req.user, group:group, newGroup:false, error:null});
+			res.render('user/editGroup.jade', {currentUser:req.user, group:group, error:null});
 	});
 });
 
-app.post('/groups/:id/edit', secured, securedAdmin, function(req,res){
+app.put('/groups/:id', secured, securedAdmin, function(req,res){
 	UserGroup.findOne({_id:req.params.id}, function(err,group) {
 		group.name = req.body.group.name;
-//console.log(group);
 		group.save(function(err) {
-//console.log("ERR="+err);
 			if (err)
-				res.render('user/editGroup.jade', {currentUser:req.user, group:group, newGroup:false, error:err});
+				res.render('user/editGroup.jade', {currentUser:req.user, group:group, error:err});
 			else
 				res.redirect('/users');
 		});
@@ -256,7 +273,7 @@ app.post('/groups/:id/edit', secured, securedAdmin, function(req,res){
 });
 
 
-app.get('/groups/:id/delete', secured, securedAdmin, function(req,res){
+app.del('/groups/:id', secured, securedAdmin, function(req,res){
 	UserGroup.findOne({_id:req.params.id}, function(err,group) {
 		if (!err) {
 			group.remove(function(){
@@ -267,6 +284,7 @@ app.get('/groups/:id/delete', secured, securedAdmin, function(req,res){
 			res.redirect('/users');
 	});
 });
+
 
 
 // ---------------------------
@@ -282,18 +300,7 @@ app.get('/interviewer/login', function(req,res){
 });
 
 app.post('/interviewer/login', function(req,res){
-	console.log('Logging in ['+req.body.username+']...');
-	User.findOne({username:req.body.username}, function(err,user) {
-		if (user && user.authenticate(req.body.password)) {
-			console.log("login OK for ["+user.username+"]");
-			req.session.username = user.username;
-			res.redirect('/interviewer');
-		}
-		else {
-			console.log("login FAILED for ["+req.body.username+"]");
-			res.render('interviewer/login.jade', {interviewer:true});
-		}
-	});
+	login(req, res, req.body.username, req.body.password);
 });
 
 app.get('/interviewer/logout', function(req,res){
