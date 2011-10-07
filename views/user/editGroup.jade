@@ -1,0 +1,18 @@
+p
+	u #{newGroup?'New':'Edit'} Group
+br
+
+form(method='post', action='/groups/#{newGroup?'new':group._id+'/edit'}')
+	table(border=0,cellspacing=0,cellpadding=4)
+		tr
+			td Name:
+			td
+				input(type='text',name='group[name]',value=group.name)
+
+	br
+	input(type='submit',value='#{newGroup?'New':'Edit'} Group')
+	br
+	br
+	span(style='color:red; padding-left:8px;')
+		#{error}
+
