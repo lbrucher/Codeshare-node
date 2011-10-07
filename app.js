@@ -251,7 +251,7 @@ app.post('/groups/new', secured, securedAdmin, function(req,res){
 	});
 });
 
-app.get('/groups/:id/edit', secured, securedAdmin, function(req,res){
+app.get('/groups/:id', secured, securedAdmin, function(req,res){
 	UserGroup.findOne({_id:req.params.id}, function(err,group) {
 		if (err)
 			res.redirect('/users');
@@ -284,6 +284,17 @@ app.del('/groups/:id', secured, securedAdmin, function(req,res){
 			res.redirect('/users');
 	});
 });
+
+
+app.get('/groups/:id/texts', secured, securedAdmin, function(req,res){
+	UserGroup.findOne({_id:req.params.id}, function(err,group) {
+		if (err)
+			res.redirect('/users');
+		else
+			res.render('user/showGroupTexts.jade', {currentUser:req.user, group:group});
+	});
+});
+
 
 
 

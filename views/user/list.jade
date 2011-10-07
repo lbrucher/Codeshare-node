@@ -24,9 +24,12 @@ table(border=0,cellspacing=0,cellpadding=4)
 			td #{groups[grp].name}
 			td
 				- if (groups[grp].name != 'admin')
-					a(href='/groups/'+groups[grp]._id+'/edit') Edit
+					a(href='/groups/'+groups[grp]._id) Edit
 					|
 					a.delete(href='/groups/'+groups[grp]._id) Delete
+					|
+				a(href='/groups/'+groups[grp]._id+'/texts') Texts
+				
 
 script
 	$('a.delete').live('click', function(e) {

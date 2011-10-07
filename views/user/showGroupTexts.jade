@@ -1,0 +1,16 @@
+h1 Group '#{group.name}' - Texts
+a(href='/groups/#{group._id}/texts/new') Create New Text
+br
+br
+table(border=0,cellspacing=0,cellpadding=4)
+	- for(var st in group.saved_texts)
+		tr
+			td #{group.saved_texts[st].name}
+			td #{group.saved_texts[st].description}
+			td
+				textarea(rows='3',cols='80')
+					#{group.saved_texts[st].content}
+			td
+				a(href='/groups/') Edit
+				|
+				a.delete(href='/groups/') Delete
