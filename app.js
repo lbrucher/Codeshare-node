@@ -201,21 +201,21 @@ app.get('/users', secured, securedAdmin, function(req,res){
 	User.find({}, function(err, users) {
 		if (!err) {
 			UserGroup.find({}, function(err2, groups) {
-				res.render('user/list.jade', {currentUser:req.user, users:users, groups:groups});
+				res.render('user/userList.jade', {currentUser:req.user, users:users, groups:groups});
 			});
 		}
 	});
 });
 
 app.get('/users/new', secured, securedAdmin, function(req,res){
-	res.render('user/new.jade', {currentUser:req.user, user:new User(), error:null});
+	res.render('user/userNew.jade', {currentUser:req.user, user:new User(), error:null});
 });
 
 app.post('/users/new', secured, securedAdmin, function(req,res){
 	var user = new User(req.body.user);
 	user.save(function(err) {
 		if (err)
-			res.render('user/new.jade', {currentUser:req.user, user:user, error:err});
+			res.render('user/userNew.jade', {currentUser:req.user, user:user, error:err});
 		else
 			res.redirect('/users');
 	});
@@ -232,7 +232,7 @@ app.del('/users/:un', secured, securedAdmin, function(req,res){
 
 
 app.get('/groups/new', secured, securedAdmin, function(req,res){
-	res.render('user/newGroup.jade', {currentUser:req.user, group:new UserGroup({name:''}), error:null});
+	res.render('user/groupNew.jade', {currentUser:req.user, group:new UserGroup({name:''}), error:null});
 });
 
 app.post('/groups/new', secured, securedAdmin, function(req,res){
@@ -245,7 +245,7 @@ app.post('/groups/new', secured, securedAdmin, function(req,res){
 
 	group.save(function(err) {
 		if (err)
-			res.render('user/newGroup.jade', {currentUser:req.user, group:group, error:err});
+			res.render('user/groupNew.jade', {currentUser:req.user, group:group, error:err});
 		else
 			res.redirect('/users');
 	});
@@ -256,7 +256,7 @@ app.get('/groups/:id', secured, securedAdmin, function(req,res){
 		if (err)
 			res.redirect('/users');
 		else
-			res.render('user/editGroup.jade', {currentUser:req.user, group:group, error:null});
+			res.render('user/groupEdit.jade', {currentUser:req.user, group:group, error:null});
 	});
 });
 
@@ -265,7 +265,7 @@ app.put('/groups/:id', secured, securedAdmin, function(req,res){
 		group.name = req.body.group.name;
 		group.save(function(err) {
 			if (err)
-				res.render('user/editGroup.jade', {currentUser:req.user, group:group, error:err});
+				res.render('user/groupEdit.jade', {currentUser:req.user, group:group, error:err});
 			else
 				res.redirect('/users');
 		});
@@ -291,7 +291,7 @@ app.get('/groups/:id/texts', secured, securedAdmin, function(req,res){
 		if (err)
 			res.redirect('/users');
 		else
-			res.render('user/showGroupTexts.jade', {currentUser:req.user, group:group});
+			res.render('user/groupTextsShow.jade', {currentUser:req.user, group:group});
 	});
 });
 
