@@ -1,0 +1,6 @@
+p
+	u New Saved Text
+br
+
+form(method='post', action='/groups/#{group._id}/texts/new')
+	!=partial('shared/groupTextsEdit.jade', { locals: {but_submit:'New Saved Text', savedtext:savedtext,error:error} })

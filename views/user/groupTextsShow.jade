@@ -1,16 +1,44 @@
+script(type='text/javascript', src='/javascripts/jquery.min.js')
+
 h1 Group '#{group.name}' - Texts
 a(href='/groups/#{group._id}/texts/new') Create New Text
 br
 br
 table(border=0,cellspacing=0,cellpadding=4)
-	- for(var st in group.saved_texts)
-		tr
-			td #{group.saved_texts[st].name}
-			td #{group.saved_texts[st].description}
+	- for(var t=0; t<group.saved_texts.length; t++)
+		tr(valign='top')
+			td #{group.saved_texts[t].name}
 			td
-				textarea(rows='3',cols='80')
-					#{group.saved_texts[st].content}
+				textarea(rows='3',cols='40',readonly='1')
+					#{group.saved_texts[t].description}
 			td
-				a(href='/groups/') Edit
+				textarea(rows='3',cols='40',readonly='1')
+					#{group.saved_texts[t].content}
+			td
+				a(href='/groups/#{group._id}/texts/#{group.saved_texts[t]._id}') Edit
 				|
-				a.delete(href='/groups/') Delete
+				a.delete(href='/groups/#{group._id}/texts/#{group.saved_texts[t]._id}') Delete
+
+script
+	$('a.delete').live('click', function(e) {
+		e.preventDefault();
+		if (confirm('Delete this saved text?')) {
+			var element = $(this),
+				form = $('<form></form>');
+			form
+				.attr({
+					method: 'POST',
+					action: element.attr('href')
+				})
+				.hide()
+				.append('<input type="hidden" />')
+				.find('input')
+				.attr({
+					'name': '_method',
+					'value': 'delete'
+				})
+				.end()
+				.submit();
+		}
+	});
+
