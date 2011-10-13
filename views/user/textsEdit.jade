@@ -1,0 +1,7 @@
+p
+	u Edit Saved Text
+br
+
+form(method='post', action='/user/#{user._id}/texts/#{savedtext._id}')
+	input(type='hidden', name='_method', value='PUT')
+	!=partial('shared/textsEdit.jade', { locals: {but_submit:'Edit Saved Text', savedtext:savedtext, error:error} })

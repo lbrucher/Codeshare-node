@@ -1,7 +1,7 @@
 script(type='text/javascript', src='/javascripts/jquery.min.js')
 
 h1 Users
-a(href='/users/new') Create New
+a(href='/user/new') Create New
 br
 br
 table(border=0,cellspacing=0,cellpadding=4)
@@ -10,37 +10,21 @@ table(border=0,cellspacing=0,cellpadding=4)
 			td #{users[u].username}
 			td
 				- if (users[u].username == 'admin')
-					a(href='/users/'+users[u]._id+'/pwd') Change Password
+					a(href='/user/'+users[u]._id+'/pwd') Change Password
 				- else
-					a(href='/users/'+users[u]._id) Edit
+					a(href='/user/'+users[u]._id) Edit
 					&nbsp;|
-					a(href='/users/'+users[u]._id+'/pwd') Change Password
+					a(href='/user/'+users[u]._id+'/texts') Texts
 					&nbsp;|
-					a.delete(href='/users/'+users[u]._id) Delete
-
-br
-br
-h1 Groups
-a(href='/groups/new') Create New
-br
-br
-table(border=0,cellspacing=0,cellpadding=4)
-	- for(var grp in groups)
-		tr
-			td #{groups[grp].name}
-			td
-				- if (groups[grp].name != 'admin')
-					a(href='/groups/'+groups[grp]._id) Edit
+					a(href='/user/'+users[u]._id+'/pwd') Change Password
 					&nbsp;|
-					a.delete(href='/groups/'+groups[grp]._id) Delete
-					&nbsp;|
-				a(href='/groups/'+groups[grp]._id+'/texts') Texts
+					a.delete(href='/user/'+users[u]._id) Delete
 				
 
 script
 	$('a.delete').live('click', function(e) {
 		e.preventDefault();
-		if (confirm('Delete this group?')) {
+		if (confirm('Delete this user?')) {
 			var element = $(this),
 				form = $('<form></form>');
 			form

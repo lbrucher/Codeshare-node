@@ -75,7 +75,7 @@ app.on('close', function() {
 // MONGOOSE
 models.defineModels(mongoose, function() {
 	app.User = User = mongoose.model('UserSchema');
-	app.UserGroup = UserGroup = mongoose.model('UserGroupSchema');
+//	app.UserGroup = UserGroup = mongoose.model('UserGroupSchema');
 	app.SavedText = SavedText = mongoose.model('SavedTextSchema');
 
 	db = mongoose.connect(app.set('db-uri'));
@@ -186,9 +186,9 @@ function securedAdmin(req, res, next) {
 }
 
 
-function findGroupSavedText(group, savedTextId) {
-	for(var i=0; i<group.saved_texts.length; i++) {
-		if (group.saved_texts[i]._id == savedTextId)
+function findUserText(user, textId) {
+	for(var i=0; i<user.texts.length; i++) {
+		if (user.texts[i]._id == textId)
 			return i;
 	}
 	return -1;
@@ -207,87 +207,184 @@ app.get('/', function(req, res){
 // ---------------------------
 // USER/GROUP MANAGEMENT
 // ---------------------------
-app.get('/users', secured, securedAdmin, function(req,res){
+app.get('/user', secured, securedAdmin, function(req,res){
 	User.find({}, function(err, users) {
-		if (!err) {
-			UserGroup.find({}, function(err2, groups) {
-				res.render('user/list.jade', {currentUser:req.user, users:users, groups:groups});
-			});
-		}
+		if (!err)
+			res.render('user/list.jade', {currentUser:req.user, users:users});
 	});
 });
 
-app.get('/users/new', secured, securedAdmin, function(req,res){
+app.get('/user/new', secured, securedAdmin, function(req,res){
 	res.render('user/userNew.jade', {currentUser:req.user, user:new User(), error:null});
 });
 
-app.post('/users/new', secured, securedAdmin, function(req,res){
+app.post('/user/new', secured, securedAdmin, function(req,res){
 	var user = new User(req.body.user);
 	user.save(function(err) {
 		if (err)
 			res.render('user/userNew.jade', {currentUser:req.user, user:user, error:err});
 		else
-			res.redirect('/users');
+			res.redirect('/user');
 	});
 });
 
-app.get('/users/:id', secured, securedAdmin, function(req,res){
+app.get('/user/:id', secured, securedAdmin, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
-			res.redirect('/users');
+			res.redirect('/user');
 		else
 			res.render('user/userEdit.jade', {currentUser:req.user, user:user, error:null});
 	});
 });
 
-app.put('/users/:id', secured, securedAdmin, function(req,res){
+app.put('/user/:id', secured, securedAdmin, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
-			res.redirect('/users');
+			res.redirect('/user');
 		else {
 			user.first_name = req.body.user.first_name;
 			user.last_name = req.body.user.last_name;
 
 			user.save(function(err) {
-				res.redirect('/users');
+				res.redirect('/user');
 			});
 		}
 	});
 });
 
-app.get('/users/:id/pwd', secured, securedAdmin, function(req,res){
+app.get('/user/:id/pwd', secured, securedAdmin, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
-			res.redirect('/users');
+			res.redirect('/user');
 		else
 			res.render('user/userChgPwd.jade', {currentUser:req.user, user:user, error:null});
 	});
 });
 
-app.put('/users/:id/pwd', secured, securedAdmin, function(req,res){
+app.put('/user/:id/pwd', secured, securedAdmin, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
-			res.redirect('/users');
+			res.redirect('/user');
 		else {
 			user.password = req.body.password;
 
 			user.save(function(err) {
-				res.redirect('/users');
+				res.redirect('/user');
 			});
 		}
 	});
 });
 
-app.del('/users/:id', secured, securedAdmin, function(req,res){
+app.del('/user/:id', secured, securedAdmin, function(req,res){
 /*
 	users.remove(req.params.un, function(err) {
 		res.redirect('/users');
 	});
 */
-		res.redirect('/users');
+		res.redirect('/user');
 });
 
 
+app.get('/user/:id/texts', secured, securedAdmin, function(req,res){
+	User.findOne({_id:req.params.id}, function(err,user) {
+		if (err)
+			res.redirect('/user');
+		else {
+			res.render('user/textsList.jade', {currentUser:req.user, user:user});
+		}
+	});
+});
+
+app.get('/user/:id/texts/new', secured, securedAdmin, function(req,res){
+	User.findOne({_id:req.params.id}, function(err,user) {
+		if (err)
+			res.redirect('/user');
+		else
+			res.render('user/textsNew.jade', {currentUser:req.user, user:user, savedtext:new SavedText({name:'',description:'',content:''}), error:null});
+	});
+});
+
+app.post('/user/:id/texts/new', secured, securedAdmin, function(req,res){
+	User.findOne({_id:req.params.id}, function(err,user) {
+		if (err)
+			res.redirect('/user');
+		else {
+			var text = new SavedText(req.body.savedtext);
+			user.texts.push(text);
+
+			user.save(function(err) {
+				if (err)
+					res.render('user/textsNew.jade', {currentUser:req.user, user:user, savedtext:text, error:err});
+				else
+					res.redirect('/user/'+user._id+'/texts');
+			});
+		}
+	});
+});
+
+app.get('/user/:id/texts/:tid', secured, securedAdmin, function(req,res){
+	User.findOne({_id:req.params.id}, function(err,user) {
+		if (err)
+			res.redirect('/user');
+		else {
+			var index = findUserText(user, req.params.tid);
+			if (index == -1)
+				res.redirect('/user/'+user._id+'/texts');
+			else
+				res.render('user/textsEdit.jade', {currentUser:req.user, user:user, savedtext:user.texts[index], error:null});
+		}
+	});
+});
+
+app.put('/user/:id/texts/:tid', secured, securedAdmin, function(req,res){
+	User.findOne({_id:req.params.id}, function(err,user) {
+		if (err)
+			res.redirect('/user');
+		else {
+			var index = findUserText(user, req.params.tid);
+			if (index == -1)
+				res.render('user/textsEdit.jade', {currentUser:req.user, user:user, savedtext:req.body.savedtext, error:'Unknown saved text!'});
+			else {
+				var text = user.texts[index];
+				text.name = req.body.savedtext.name;
+				text.description = req.body.savedtext.description;
+				text.content = req.body.savedtext.content;
+
+				user.save(function(err) {
+					if (err)
+						res.render('user/textsEdit.jade', {currentUser:req.user, user:user, savedtext:text, error:err});
+					else
+						res.redirect('/user/'+user._id+'/texts');
+				});
+			}
+		}
+	});
+});
+
+app.del('/user/:id/texts/:tid', secured, securedAdmin, function(req,res){
+	User.findOne({_id:req.params.id}, function(err,user) {
+		if (err)
+			res.redirect('/user');
+		else {
+			var index = findUserText(user, req.params.tid);
+			if (index == -1)
+				res.redirect('/user/'+user._id+'/texts');
+			else {
+				user.texts.splice(index,1);
+
+				user.save(function(err) {
+					res.redirect('/user/'+user._id+'/texts');
+				});
+			}
+		}
+	});
+});
+
+
+
+
+
+/*
 app.get('/groups/new', secured, securedAdmin, function(req,res){
 	res.render('user/groupNew.jade', {currentUser:req.user, group:new UserGroup({name:''}), error:null});
 });
@@ -436,6 +533,7 @@ app.del('/groups/:id/texts/:tid', secured, securedAdmin, function(req,res){
 		}
 	});
 });
+*/
 
 
 // ---------------------------

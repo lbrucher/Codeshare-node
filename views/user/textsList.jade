@@ -1,23 +1,23 @@
 script(type='text/javascript', src='/javascripts/jquery.min.js')
 
-h1 Group '#{group.name}' - Texts
-a(href='/groups/#{group._id}/texts/new') Create New Text
+h1 User '#{user.username}' - Texts
+a(href='/user/#{user._id}/texts/new') Create New Text
 br
 br
 table(border=0,cellspacing=0,cellpadding=4)
-	- for(var t=0; t<group.saved_texts.length; t++)
+	- for(var t=0; t<user.texts.length; t++)
 		tr(valign='top')
-			td #{group.saved_texts[t].name}
+			td #{user.texts[t].name}
 			td
 				textarea(rows='3',cols='40',readonly='1')
-					#{group.saved_texts[t].description}
+					#{user.texts[t].description}
 			td
 				textarea(rows='3',cols='40',readonly='1')
-					#{group.saved_texts[t].content}
+					#{user.texts[t].content}
 			td
-				a(href='/groups/#{group._id}/texts/#{group.saved_texts[t]._id}') Edit
+				a(href='/user/#{user._id}/texts/#{user.texts[t]._id}') Edit
 				|
-				a.delete(href='/groups/#{group._id}/texts/#{group.saved_texts[t]._id}') Delete
+				a.delete(href='/user/#{user._id}/texts/#{user.texts[t]._id}') Delete
 
 script
 	$('a.delete').live('click', function(e) {
@@ -41,4 +41,3 @@ script
 				.submit();
 		}
 	});
-

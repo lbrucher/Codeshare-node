@@ -18,7 +18,7 @@ function defineModels(mongoose, callback) {
 
 	mongoose.model('SavedTextSchema', SavedTextSchema);
 
-
+/*
 	// ----------------------------------------
 	// USER GROUP
 	// ----------------------------------------
@@ -28,18 +28,19 @@ function defineModels(mongoose, callback) {
 	});
 
 	mongoose.model('UserGroupSchema', UserGroupSchema);
-
+*/
 
 	// ----------------------------------------
 	// USER
 	// ----------------------------------------
 	UserSchema = new Schema({
-		  'username': { type: String, required: true, index: { unique: true } }
-		, 'password_hashed': String
-		, 'first_name': String
-		, 'last_name': String
-		, 'salt': String
-		, '_group': { type: Schema.ObjectId, ref: 'UserGroupSchema' }
+		  username: { type: String, required: true, index: { unique: true } }
+		, password_hashed: String
+		, first_name: String
+		, last_name: String
+		, salt: String
+		, texts: [SavedTextSchema]
+//		, '_group': { type: Schema.ObjectId, ref: 'UserGroupSchema' }
 	});
 
 	UserSchema.virtual('password')
