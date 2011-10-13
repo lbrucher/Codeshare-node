@@ -17,10 +17,12 @@ html
 							span(style='padding-left:6px;') (#{currentUser.username})
 						- if (typeof session != 'undefined')
 							li.right Session #{session.id}
-						- if (currentUser.username == 'admin')
-							li.right
-								.divider |
+						li.right
+							.divider |
+							- if (currentUser.username == 'admin')
 								a(href='/user') Users
+							- else
+								a(href='/user') Profile
 
 					- else
 						li.left

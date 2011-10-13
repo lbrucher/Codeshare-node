@@ -137,12 +137,18 @@ function getRefreshedText(aSession, lastUpdateTime, who)
 }
 
 
+function isAdmin(req) {
+	return req.session.username == 'admin';
+}
+
+
 function login(req,res,username, password) {
 	console.log('Logging in ['+username+']...');
 	User.findOne({username:username}, function(err,user) {
 		if (user && user.authenticate(password)) {
 			console.log("login OK for ["+user.username+"]");
 			req.session.username = user.username;
+			req.session.userid = user._id;
 			res.redirect('/interviewer');
 		}
 		else {
@@ -176,7 +182,17 @@ function secured(req, res, next) {
 
 
 function securedAdmin(req, res, next) {
-	if (req.session.username == 'admin')
+	if (isAdmin(req))
+	{
+		next();
+		return;
+	}
+	
+	res.redirect('/interviewer');
+}
+
+function securedAdminOrCurrentUser(req, res, next) {
+	if (isAdmin(req) || req.session.userid == req.params.id)
 	{
 		next();
 		return;
@@ -207,11 +223,15 @@ app.get('/', function(req, res){
 // ---------------------------
 // USER/GROUP MANAGEMENT
 // ---------------------------
-app.get('/user', secured, securedAdmin, function(req,res){
-	User.find({}, function(err, users) {
-		if (!err)
-			res.render('user/list.jade', {currentUser:req.user, users:users});
-	});
+app.get('/user', secured, function(req,res){
+	if (isAdmin(req)) {
+		User.find({}, function(err, users) {
+			if (!err)
+				res.render('user/list.jade', {currentUser:req.user, users:users});
+		});
+	} else {
+		res.render('user/profile.jade', {currentUser:req.user});
+	}
 });
 
 app.get('/user/new', secured, securedAdmin, function(req,res){
@@ -252,7 +272,7 @@ app.put('/user/:id', secured, securedAdmin, function(req,res){
 	});
 });
 
-app.get('/user/:id/pwd', secured, securedAdmin, function(req,res){
+app.get('/user/:id/pwd', secured, securedAdminOrCurrentUser, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
 			res.redirect('/user');
@@ -261,7 +281,7 @@ app.get('/user/:id/pwd', secured, securedAdmin, function(req,res){
 	});
 });
 
-app.put('/user/:id/pwd', secured, securedAdmin, function(req,res){
+app.put('/user/:id/pwd', secured, securedAdminOrCurrentUser, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
 			res.redirect('/user');
@@ -285,7 +305,7 @@ app.del('/user/:id', secured, securedAdmin, function(req,res){
 });
 
 
-app.get('/user/:id/texts', secured, securedAdmin, function(req,res){
+app.get('/user/:id/texts', secured, securedAdminOrCurrentUser, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
 			res.redirect('/user');
@@ -295,7 +315,7 @@ app.get('/user/:id/texts', secured, securedAdmin, function(req,res){
 	});
 });
 
-app.get('/user/:id/texts/new', secured, securedAdmin, function(req,res){
+app.get('/user/:id/texts/new', secured, securedAdminOrCurrentUser, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
 			res.redirect('/user');
@@ -304,7 +324,7 @@ app.get('/user/:id/texts/new', secured, securedAdmin, function(req,res){
 	});
 });
 
-app.post('/user/:id/texts/new', secured, securedAdmin, function(req,res){
+app.post('/user/:id/texts/new', secured, securedAdminOrCurrentUser, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
 			res.redirect('/user');
@@ -322,7 +342,7 @@ app.post('/user/:id/texts/new', secured, securedAdmin, function(req,res){
 	});
 });
 
-app.get('/user/:id/texts/:tid', secured, securedAdmin, function(req,res){
+app.get('/user/:id/texts/:tid', secured, securedAdminOrCurrentUser, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
 			res.redirect('/user');
@@ -336,7 +356,7 @@ app.get('/user/:id/texts/:tid', secured, securedAdmin, function(req,res){
 	});
 });
 
-app.put('/user/:id/texts/:tid', secured, securedAdmin, function(req,res){
+app.put('/user/:id/texts/:tid', secured, securedAdminOrCurrentUser, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
 			res.redirect('/user');
@@ -361,7 +381,7 @@ app.put('/user/:id/texts/:tid', secured, securedAdmin, function(req,res){
 	});
 });
 
-app.del('/user/:id/texts/:tid', secured, securedAdmin, function(req,res){
+app.del('/user/:id/texts/:tid', secured, securedAdminOrCurrentUser, function(req,res){
 	User.findOne({_id:req.params.id}, function(err,user) {
 		if (err)
 			res.redirect('/user');
