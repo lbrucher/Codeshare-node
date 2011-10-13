@@ -12,7 +12,7 @@ var db;
 var User, Session, UserGroup, SavedText;
 var isDebug = false;
 var isHttps = false;
-
+var autologin = true;
 
 // Application/Server    
 var app;
@@ -166,7 +166,7 @@ function secured(req, res, next) {
 			}
 		});
 	}
-	else if (app.settings.env == 'development')
+	else if (autologin && app.settings.env == 'development')
 	{
 		login(req,res,'admin', 'admin');
 	}
@@ -231,7 +231,54 @@ app.post('/users/new', secured, securedAdmin, function(req,res){
 	});
 });
 
-app.del('/users/:un', secured, securedAdmin, function(req,res){
+app.get('/users/:id', secured, securedAdmin, function(req,res){
+	User.findOne({_id:req.params.id}, function(err,user) {
+		if (err)
+			res.redirect('/users');
+		else
+			res.render('user/userEdit.jade', {currentUser:req.user, user:user, error:null});
+	});
+});
+
+app.put('/users/:id', secured, securedAdmin, function(req,res){
+	User.findOne({_id:req.params.id}, function(err,user) {
+		if (err)
+			res.redirect('/users');
+		else {
+			user.first_name = req.body.user.first_name;
+			user.last_name = req.body.user.last_name;
+
+			user.save(function(err) {
+				res.redirect('/users');
+			});
+		}
+	});
+});
+
+app.get('/users/:id/pwd', secured, securedAdmin, function(req,res){
+	User.findOne({_id:req.params.id}, function(err,user) {
+		if (err)
+			res.redirect('/users');
+		else
+			res.render('user/userChgPwd.jade', {currentUser:req.user, user:user, error:null});
+	});
+});
+
+app.put('/users/:id/pwd', secured, securedAdmin, function(req,res){
+	User.findOne({_id:req.params.id}, function(err,user) {
+		if (err)
+			res.redirect('/users');
+		else {
+			user.password = req.body.password;
+
+			user.save(function(err) {
+				res.redirect('/users');
+			});
+		}
+	});
+});
+
+app.del('/users/:id', secured, securedAdmin, function(req,res){
 /*
 	users.remove(req.params.un, function(err) {
 		res.redirect('/users');

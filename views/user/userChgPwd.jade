@@ -1,0 +1,19 @@
+p
+	u Change User Password
+br
+
+form(method='post', action='/users/#{user._id}/pwd')
+	input(type='hidden', name='_method', value='PUT')
+	table(border=0,cellspacing=0,cellpadding=4)
+		tr
+			td Username:
+			td #{user.username}
+		tr
+			td Password:
+			td
+				input(type='password',name='password',value='')
+
+	input(type='submit',value='Change Password')
+
+	span(style='color:red; padding-left:8px;')
+		#{error}

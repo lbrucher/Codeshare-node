@@ -9,8 +9,14 @@ table(border=0,cellspacing=0,cellpadding=4)
 		tr
 			td #{users[u].username}
 			td
-				- if (users[u].username != 'admin')
-					a.delete(href='/users/'+users[u].username) Delete
+				- if (users[u].username == 'admin')
+					a(href='/users/'+users[u]._id+'/pwd') Change Password
+				- else
+					a(href='/users/'+users[u]._id) Edit
+					&nbsp;|
+					a(href='/users/'+users[u]._id+'/pwd') Change Password
+					&nbsp;|
+					a.delete(href='/users/'+users[u]._id) Delete
 
 br
 br
@@ -25,9 +31,9 @@ table(border=0,cellspacing=0,cellpadding=4)
 			td
 				- if (groups[grp].name != 'admin')
 					a(href='/groups/'+groups[grp]._id) Edit
-					|
+					&nbsp;|
 					a.delete(href='/groups/'+groups[grp]._id) Delete
-					|
+					&nbsp;|
 				a(href='/groups/'+groups[grp]._id+'/texts') Texts
 				
 
