@@ -1,0 +1,21 @@
+table(border=0,cellspacing=0,cellpadding=4)
+	tr
+		td Name:
+		td
+			input(type='text',name='savedtext[name]',value='#{savedtext.name}')
+	tr
+		td Description:
+		td
+			textarea(rows='3',cols='80',name='savedtext[description]')
+				#{savedtext.description}
+	tr
+		td Content:
+		td
+			textarea(rows='3',cols='80',name='savedtext[content]')
+				#{savedtext.content}
+br
+input(type='submit',value='#{but_submit}')
+br
+br
+span(style='color:red; padding-left:8px;')
+	#{error}

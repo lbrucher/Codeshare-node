@@ -1,0 +1,7 @@
+p
+	u Edit Group
+br
+
+form(method='post', action='/groups/'+group._id)
+	input(type='hidden', name='_method', value='PUT')
+	!=partial('shared/editGroup.jade', { locals: {but_submit:'Edit Group', group_name:group.name,error:error} })

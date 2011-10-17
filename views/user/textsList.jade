@@ -1,0 +1,43 @@
+script(type='text/javascript', src='/javascripts/jquery.min.js')
+
+h1 User '#{user.username}' - Texts
+a(href='/user/#{user._id}/texts/new') Create New Text
+br
+br
+table(border=0,cellspacing=0,cellpadding=4)
+	- for(var t=0; t<user.texts.length; t++)
+		tr(valign='top')
+			td #{user.texts[t].name}
+			td
+				textarea(rows='3',cols='40',readonly='1')
+					#{user.texts[t].description}
+			td
+				textarea(rows='3',cols='40',readonly='1')
+					#{user.texts[t].content}
+			td
+				a(href='/user/#{user._id}/texts/#{user.texts[t]._id}') Edit
+				|
+				a.delete(href='/user/#{user._id}/texts/#{user.texts[t]._id}') Delete
+
+script
+	$('a.delete').live('click', function(e) {
+		e.preventDefault();
+		if (confirm('Delete this saved text?')) {
+			var element = $(this),
+				form = $('<form></form>');
+			form
+				.attr({
+					method: 'POST',
+					action: element.attr('href')
+				})
+				.hide()
+				.append('<input type="hidden" />')
+				.find('input')
+				.attr({
+					'name': '_method',
+					'value': 'delete'
+				})
+				.end()
+				.submit();
+		}
+	});

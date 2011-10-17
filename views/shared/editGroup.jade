@@ -1,0 +1,12 @@
+table(border=0,cellspacing=0,cellpadding=4)
+	tr
+		td Name:
+		td
+			input(type='text',name='group[name]',value='#{group_name}')
+
+br
+input(type='submit',value='#{but_submit}')
+br
+br
+span(style='color:red; padding-left:8px;')
+	#{error}

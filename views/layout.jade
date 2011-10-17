@@ -11,16 +11,21 @@ html
 						li.left
 							h1
 								a(href='/interviewer') CodeShare - Interviewer
-						li.right
+						li.right.signout
+							.divider |
 							a#logout(href='/interviewer/logout') Sign Out
 							span(style='padding-left:6px;') (#{currentUser.username})
 						- if (typeof session != 'undefined')
-							li.right Session #{session.id}
-								.divider |
-						- if (currentUser.username == 'admin')
 							li.right
-								a(href='/users') Users
-								.divider |
+								&nbsp;| Session #{session.id} (
+								a(href='/interviewer/session/#{session.id}/close') close
+								)
+						li.right
+							.divider |
+							- if (currentUser.username == 'admin')
+								a(href='/user') Users
+							- else
+								a(href='/user') Profile
 
 					- else
 						li.left
@@ -29,4 +34,3 @@ html
 
 			#content
 				!= body
-

@@ -1,17 +1,13 @@
 p
-	u New User
+	u Edit User
 br
 
-form(method='post', action='/users/new')
+form(method='post', action='/user/#{user._id}')
+	input(type='hidden', name='_method', value='PUT')
 	table(border=0,cellspacing=0,cellpadding=4)
 		tr
 			td Username:
-			td
-				input(type='text',name='user[username]',value=user.username)
-		tr
-			td Password:
-			td
-				input(type='password',name='user[password]',value='')
+			td #{user.username}
 		tr
 			td First name:
 			td
@@ -20,8 +16,12 @@ form(method='post', action='/users/new')
 			td Last name:
 			td
 				input(type='text',name='user[last_name]',value=user.last_name)
+		tr
+			td Group:
+			td
+				xxx
 
-	input(type='submit',value='Create New User')
+	input(type='submit',value='Edit User')
 
 	span(style='color:red; padding-left:8px;')
 		#{error}

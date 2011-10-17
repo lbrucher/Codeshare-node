@@ -1,5 +1,7 @@
+script(type='text/javascript', src='/javascripts/jquery.min.js')
 
-a(href='/users/new') Create New
+h1 Users
+a(href='/user/new') Create New
 br
 br
 table(border=0,cellspacing=0,cellpadding=4)
@@ -7,6 +9,38 @@ table(border=0,cellspacing=0,cellpadding=4)
 		tr
 			td #{users[u].username}
 			td
-				- if (users[u].username != 'admin')
-					a(href='/users/'+users[u].username+'/delete') Delete
+				- if (users[u].username == 'admin')
+					a(href='/user/'+users[u]._id+'/pwd') Change Password
+				- else
+					a(href='/user/'+users[u]._id) Edit
+					&nbsp;|
+					a(href='/user/'+users[u]._id+'/texts') Texts
+					&nbsp;|
+					a(href='/user/'+users[u]._id+'/pwd') Change Password
+					&nbsp;|
+					a.delete(href='/user/'+users[u]._id) Delete
+				
+
+script
+	$('a.delete').live('click', function(e) {
+		e.preventDefault();
+		if (confirm('Delete this user?')) {
+			var element = $(this),
+				form = $('<form></form>');
+			form
+				.attr({
+					method: 'POST',
+					action: element.attr('href')
+				})
+				.hide()
+				.append('<input type="hidden" />')
+				.find('input')
+				.attr({
+					'name': '_method',
+					'value': 'delete'
+				})
+				.end()
+				.submit();
+		}
+	});
 
