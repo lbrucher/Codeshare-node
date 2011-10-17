@@ -1,2 +1,93 @@
 !=partial('shared/session.jade', { locals: {session:session, isDebug:isDebug, isCandidate:false, myText:session.interviewerText, otherText:session.candidateText} })
 
+div.texts
+	p(style='margin-bottom:8px;') Saved Texts:
+	p
+		select#texts(style='float:left',onchange='onTextChanged()')
+			- for(var i=0; i<currentUser.texts.length; i++)
+				option(value=i) #{currentUser.texts[i].name}
+		textarea#txt_description(rows='3',cols='40')
+		textarea#txt_content(rows='3',cols='40')
+	p(style='margin-top:8px;')
+		input(type='button',value='New Text...',onclick='newText()')
+		input(type='button',value='Update Current',onclick='updateText()')
+		input(type='button',value='Paste Current')
+
+!= "<script type='text/javascript'>"
+!= "var texts = new Array();"
+- for(var i=0; i<currentUser.texts.length; i++)
+	!= "texts.push({id:'"+currentUser.texts[i]._id+"',name:'"+currentUser.texts[i].name+"',description:'"+currentUser.texts[i].description+"',content:'"+currentUser.texts[i].content+"'});"
+!= "</script>"
+
+script
+	function onTextChanged() {
+		var text = texts[$('#texts').val()];
+		$('#txt_description').val(text.description);
+		$('#txt_content').val(text.content);
+	}
+
+	function newText() {
+		var name = prompt('New text name:');
+
+		$.ajax({
+			url: '/user/#{currentUser._id}/texts/new',
+			type: 'POST',
+			data:
+				{
+					savedtext: { name:name, description:'', content:'' }
+				},
+			beforeSend:
+				function(xhr) {
+					xhr.setRequestHeader('Accept', 'application/json');
+				},
+			success:
+				function(data, status) {
+					if (status != 'success')
+						alert("Error: "+data);
+					else {
+						//window.location.reload(true);
+						var newText = eval('(' + data + ')');
+						$('#texts').
+								append($("<option></option>").
+								attr("value",newText.name).
+								text(newText.name));
+						texts.push({description:newText.description,content:newText.content});
+					}
+				}
+		});
+	}
+
+	function updateText() {
+		var index = $('#texts').val();
+		var text = texts[index];
+		var description = $('#txt_description').val();
+		var content = $('#txt_content').val();
+		//alert(description);
+		//return;
+
+		$.ajax({
+			url: '/user/#{currentUser._id}/texts/'+text.id,
+			type: 'POST',
+			data:
+				{
+					_method: 'PUT',
+					savedtext: { name:text.name, description:description, content:content }
+				},
+			beforeSend:
+				function(xhr) {
+					xhr.setRequestHeader('Accept', 'application/json');
+				},
+			success:
+				function(data, status) {
+					if (status != 'success')
+						alert("Error: "+data);
+					else {
+						text.description = description;
+						text.content = content;
+					}
+				}
+		});
+	}
+
+	$('#texts').val(0);
+	onTextChanged();

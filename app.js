@@ -56,7 +56,7 @@ app.configure('test', function(){
 app.configure('development', function(){
 	app.set('db-uri', 'mongodb://localhost/codeshare');
 	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
-	isDebug = true;
+//	isDebug = true;
 });
 
 app.configure('production', function(){
@@ -211,6 +211,10 @@ function findUserText(user, textId) {
 }
 
 
+function isJson(req) {
+	return req.header('Accept', 'text/html').indexOf('application/json') != -1;
+}
+
 
 // ===============================================
 // ROUTING
@@ -325,18 +329,32 @@ app.get('/user/:id/texts/new', secured, securedAdminOrCurrentUser, function(req,
 });
 
 app.post('/user/:id/texts/new', secured, securedAdminOrCurrentUser, function(req,res){
+
+	var ajax = isJson(req);
+	
 	User.findOne({_id:req.params.id}, function(err,user) {
-		if (err)
-			res.redirect('/user');
+		if (err) {
+			if (ajax)
+				res.send('user not found',500);
+			else
+				res.redirect('/user');
+		}
 		else {
 			var text = new SavedText(req.body.savedtext);
 			user.texts.push(text);
-
 			user.save(function(err) {
-				if (err)
-					res.render('user/textsNew.jade', {currentUser:req.user, user:user, savedtext:text, error:err});
-				else
-					res.redirect('/user/'+user._id+'/texts');
+				if (ajax) {
+					if (err)
+						res.send('could not save user:'+err,500);
+					else
+						res.send(JSON.stringify(text),200);
+				}
+				else {
+					if (err)
+						res.render('user/textsNew.jade', {currentUser:req.user, user:user, savedtext:text, error:err});
+					else
+						res.redirect('/user/'+user._id+'/texts');
+				}
 			});
 		}
 	});
@@ -357,13 +375,23 @@ app.get('/user/:id/texts/:tid', secured, securedAdminOrCurrentUser, function(req
 });
 
 app.put('/user/:id/texts/:tid', secured, securedAdminOrCurrentUser, function(req,res){
+	var ajax = isJson(req);
+console.log('TXT UPDATE: '+JSON.stringify(req.body.savedtext));
 	User.findOne({_id:req.params.id}, function(err,user) {
-		if (err)
-			res.redirect('/user');
+		if (err) {
+			if (ajax)
+				res.send('user not found',500);
+			else
+				res.redirect('/user');
+		}
 		else {
 			var index = findUserText(user, req.params.tid);
-			if (index == -1)
-				res.render('user/textsEdit.jade', {currentUser:req.user, user:user, savedtext:req.body.savedtext, error:'Unknown saved text!'});
+			if (index == -1) {
+				if (ajax)
+					res.send('cannot find text',500);
+				else
+					res.render('user/textsEdit.jade', {currentUser:req.user, user:user, savedtext:req.body.savedtext, error:'Unknown saved text!'});
+			}
 			else {
 				var text = user.texts[index];
 				text.name = req.body.savedtext.name;
@@ -371,10 +399,18 @@ app.put('/user/:id/texts/:tid', secured, securedAdminOrCurrentUser, function(req
 				text.content = req.body.savedtext.content;
 
 				user.save(function(err) {
-					if (err)
-						res.render('user/textsEdit.jade', {currentUser:req.user, user:user, savedtext:text, error:err});
-					else
-						res.redirect('/user/'+user._id+'/texts');
+					if (ajax) {
+						if (err)
+							res.send('could not save text:'+err,500);
+						else
+							res.send('ok',200);
+					}
+					else {
+						if (err)
+							res.render('user/textsEdit.jade', {currentUser:req.user, user:user, savedtext:text, error:err});
+						else
+							res.redirect('/user/'+user._id+'/texts');
+					}
 				});
 			}
 		}
