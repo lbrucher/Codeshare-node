@@ -11,7 +11,7 @@ div.texts
 	p(style='margin-top:8px;')
 		input(type='button',value='New Text...',onclick='newText()')
 		input(type='button',value='Update Current',onclick='updateText()')
-		input(type='button',value='Paste Current')
+		input(type='button',value='Paste Current',onclick='pasteText()')
 
 != "<script type='text/javascript'>"
 != "var texts = new Array();"
@@ -62,8 +62,6 @@ script
 		var text = texts[index];
 		var description = $('#txt_description').val();
 		var content = $('#txt_content').val();
-		//alert(description);
-		//return;
 
 		$.ajax({
 			url: '/user/#{currentUser._id}/texts/'+text.id,
@@ -87,6 +85,11 @@ script
 					}
 				}
 		});
+	}
+
+	function pasteText() {
+		var newText = $('#myText').val() + $('#txt_content').val();
+		cs.setMyText(newText);
 	}
 
 	$('#texts').val(0);

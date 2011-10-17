@@ -54,6 +54,12 @@ TextareaTracker.prototype.ta_textChanged = function(evt)
 	this.onTextChanged(t.value);
 }
 
+TextareaTracker.prototype.setText = function(newText)
+{
+	this.elTA.value = newText;
+	this.onTextChanged(this.elTA.value);
+}
+
 TextareaTracker.prototype.onTextChanged = function(newText)
 {
 	if (this.text == newText)
@@ -225,6 +231,14 @@ Codeshare.prototype.updateMyComments = function(newText)
 	catch(e)
 	{
 	}
+}
+
+/*
+ * Refresh the current content of 'myText', and send the updated
+ */
+Codeshare.prototype.setMyText = function(newText)
+{
+	this.myTextTracker.setText(newText);
 }
 
 
