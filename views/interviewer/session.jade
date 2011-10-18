@@ -13,15 +13,22 @@ div.texts
 		input(type='button',value='Update Current',onclick='updateText()')
 		input(type='button',value='Paste Current',onclick='pasteText()')
 
-!= "<script type='text/javascript'>"
-!= "var texts = new Array();"
+!= "<script type='text/javascript'>\n"
+!= "var texts = new Array();\n"
 - for(var i=0; i<currentUser.texts.length; i++)
-	!= "texts.push({id:'"+currentUser.texts[i]._id+"',name:'"+currentUser.texts[i].name+"',description:'"+currentUser.texts[i].description+"',content:'"+currentUser.texts[i].content+"'});"
-!= "</script>"
+	!= "texts.push( { id:'"+currentUser.texts[i]._id+"',\n"
+	!= "              name:'"+currentUser.texts[i].name.replace(/'/gm,"\\'")+"',\n"
+	!= "              description:'"+currentUser.texts[i].description.replace(/'/gm,"\\'").replace(/[\f\r]/gm,"").replace(/\n/gm,"\\n")+"',\n"
+	!= "              content:'"+currentUser.texts[i].content.replace(/'/gm,"\\'").replace(/[\f\r]/gm,"").replace(/\n/gm,"\\n")+"'\n"
+	!= "} );\n"
+!= "</script>\n"
 
 script
 	function onTextChanged() {
-		var text = texts[$('#texts').val()];
+		var index = $('#texts').val();
+		if (index == null)
+			return;
+		var text = texts[index];
 		$('#txt_description').val(text.description);
 		$('#txt_content').val(text.content);
 	}
