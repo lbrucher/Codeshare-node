@@ -133,16 +133,21 @@ function isJson(req) {
 module.exports.createServer = function() {
 
 	// Application/Server    
-	if (isHttps) {
-		var serverOptions = {
-			key: fs.readFileSync(__dirname+'/privatekey.pem'),
-			cert: fs.readFileSync(__dirname+'/certificate.pem')
-		};
-		console.log("Creating new HTTPS server...");
-		app = express.createServer(serverOptions);
-	} else {
-		console.log("Creating new HTTP server...");
-		app = express.createServer();
+	try {
+		if (isHttps) {
+			var serverOptions = {
+				key: fs.readFileSync(__dirname+'/privatekey.pem'),
+				cert: fs.readFileSync(__dirname+'/certificate.pem')
+			};
+			console.log("Creating new HTTPS server...");
+			app = express.createServer(serverOptions);
+		} else {
+			console.log("Creating new HTTP server...");
+			app = express.createServer();
+		}
+	}
+	catch(e) {
+		console.log("EXCEPTION while creating HTTP server: "+e);
 	}
 
 
