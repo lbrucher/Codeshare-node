@@ -10,5 +10,6 @@
 - users in groups
 - store code snippets to use during interview
 - auto close sessions
+- oscar test
 
 
