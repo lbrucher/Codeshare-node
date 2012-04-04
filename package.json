@@ -3,11 +3,11 @@
   , "version": "0.0.1"
   , "private": true
   , "dependencies": {
-      "express": "2.4.0"
+      "express": ">= 2.4.0"
     , "jade": ">= 0.0.1"
-    , "stylus": "0.13.6"
-    , "crypto": "0.0.1"
-    , "mongoose": "2.0.0"
+    , "stylus": ">= 0.13.6"
+    , "crypto": ">= 0.0.1"
+    , "mongoose": ">= 2.0.0"
   }
   , "devDependencies": {
 	  "nodeunit": ">= 0.5.3"
@@ -15,4 +15,3 @@
   }
 
 }
-	
